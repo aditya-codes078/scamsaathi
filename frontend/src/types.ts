@@ -6,3 +6,11 @@ export interface AnalysisResult {
   explanation: string;
   safe_actions: string[];
 }
+
+export interface ExampleMessage {
+  id: string;
+  category: string;
+  title: string;
+  riskHint: RiskLevel;
+  text: string;
+}

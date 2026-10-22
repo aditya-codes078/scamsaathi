@@ -1,75 +1,41 @@
-import { useState } from "react";
-import { analyze } from "./api";
-import WhatHappened from "./WhatHappened";
-import type { AnalysisResult, RiskLevel } from "./types";
-
-const colors: Record<RiskLevel, string> = {
-  Low: "bg-green-600",
-  Caution: "bg-yellow-500",
-  High: "bg-orange-600",
-  Critical: "bg-red-700",
-};
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import HowItWorks from "./components/HowItWorks";
+import MessageChecker from "./components/MessageChecker";
+import WhyScamSaathi from "./components/WhyScamSaathi";
+import SafetyBanner from "./components/SafetyBanner";
+import Team from "./components/Team";
+import Footer from "./components/Footer";
 
 export default function App() {
-  const [text, setText] = useState("");
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleCheck() {
-    setLoading(true);
-    try {
-      setResult(await analyze(text));
-    } catch {
-      alert("Kuch gadbad hui, dobara try karein");
-    }
-    setLoading(false);
-  }
-
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">ScamSaathi</h1>
+    <div className="min-h-screen bg-gradient-to-b from-[#0B1230] via-[#10163A] to-[#1B1B4B] text-[#CBD5E1] flex flex-col font-sans selection:bg-[#22D3EE]/30 selection:text-white">
+      {/* 1. Sticky Navbar */}
+      <Navbar />
 
-      <textarea
-        className="w-full h-40 p-3 rounded bg-slate-900 border border-slate-700"
-        placeholder="Suspicious message ya link yahan paste karein..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
+      {/* Main Single-Page Sections */}
+      <main className="flex-1">
+        {/* 2. Hero Section with CSS/SVG Visual and Soft Radial Glow */}
+        <Hero />
 
-      <button
-        onClick={handleCheck}
-        disabled={!text.trim() || loading}
-        className="mt-3 px-5 py-2 rounded bg-blue-600 disabled:opacity-50"
-      >
-        {loading ? "Checking..." : "Check"}
-      </button>
+        {/* 3. How It Works (5 sequential steps) */}
+        <HowItWorks />
 
-      {result && (
-        <div className="mt-6 p-4 rounded bg-slate-900 border border-slate-700">
-          <span
-            className={`px-3 py-1 rounded font-semibold ${colors[result.risk_level]}`}
-          >
-            {result.risk_level} risk
-          </span>
+        {/* 4. Checker (Core feature + What Happened incident recovery) */}
+        <MessageChecker />
 
-          <div className="flex gap-2 flex-wrap mt-3">
-            {result.signals.map((s) => (
-              <span key={s} className="px-2 py-1 text-sm rounded bg-slate-800">
-                {s}
-              </span>
-            ))}
-          </div>
+        {/* 5. Why ScamSaathi (3 core cards) */}
+        <WhyScamSaathi />
 
-          <p className="mt-3">{result.explanation}</p>
+        {/* 6. Emergency Safety Banner (1930 & cybercrime.gov.in) */}
+        <SafetyBanner />
 
-          <ul className="mt-3 list-disc pl-5">
-            {result.safe_actions.map((a) => (
-              <li key={a}>{a}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {result && <WhatHappened />}
+        {/* 7. Team Section (HackIndia x KIT 2026 - Team Build Beyond) */}
+        <Team />
+      </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
