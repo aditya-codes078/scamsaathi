@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { analyze } from "./api";
+import WhatHappened from "./WhatHappened";
 import type { AnalysisResult, RiskLevel } from "./types";
 
 const colors: Record<RiskLevel, string> = {
@@ -68,6 +69,7 @@ export default function App() {
           </ul>
         </div>
       )}
+      {result && <WhatHappened />}
     </div>
   );
 }
