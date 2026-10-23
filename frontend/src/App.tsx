@@ -1,3 +1,4 @@
+import { ThemeProvider, useTheme } from "./components/ThemeContext";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import HowItWorks from "./components/HowItWorks";
@@ -7,35 +8,51 @@ import SafetyBanner from "./components/SafetyBanner";
 import Team from "./components/Team";
 import Footer from "./components/Footer";
 
-export default function App() {
+function AppContent() {
+  const { isDark } = useTheme();
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0B1230] via-[#10163A] to-[#1B1B4B] text-[#CBD5E1] flex flex-col font-sans selection:bg-[#22D3EE]/30 selection:text-white">
-      {/* 1. Sticky Navbar */}
+    <div
+      className={`min-h-screen flex flex-col font-sans transition-colors duration-300 selection:bg-[#2563EB]/20 selection:text-[#2563EB] ${
+        isDark
+          ? "bg-gradient-to-b from-[#0B1230] via-[#10163A] to-[#1B1B4B] text-slate-200"
+          : "bg-gradient-to-b from-[#FFF9F0] via-[#FAF6F0] to-[#F4F1FF] text-slate-800"
+      }`}
+    >
+      {/* 1. Sticky Navbar with Theme Toggle */}
       <Navbar />
 
       {/* Main Single-Page Sections */}
       <main className="flex-1">
-        {/* 2. Hero Section with CSS/SVG Visual and Soft Radial Glow */}
+        {/* 2. Hero Section with Interactive 3D Phone and Floating Popovers */}
         <Hero />
 
-        {/* 3. How It Works (5 sequential steps) */}
+        {/* 3. How It Works (5 sequential 3D Flip cards) */}
         <HowItWorks />
 
-        {/* 4. Checker (Core feature + What Happened incident recovery) */}
+        {/* 4. Checker (Core feature + 3D Risk Dial + Evidence Highlight + Share Card + Screenshot OCR + WhatHappened) */}
         <MessageChecker />
 
-        {/* 5. Why ScamSaathi (3 core cards) */}
+        {/* 5. Why ScamSaathi (3 core cards + Story image slots) */}
         <WhyScamSaathi />
 
         {/* 6. Emergency Safety Banner (1930 & cybercrime.gov.in) */}
         <SafetyBanner />
 
-        {/* 7. Team Section (HackIndia x KIT 2026 - Team Build Beyond) */}
+        {/* 7. Team Section (Team Build Beyond with photo slots) */}
         <Team />
       </main>
 
       {/* Footer */}
       <Footer />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }

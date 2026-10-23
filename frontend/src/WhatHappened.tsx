@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
+import { useTheme } from "./components/ThemeContext";
 
 interface IncidentOption {
   id: string;
@@ -89,6 +90,7 @@ const incidentOptions: IncidentOption[] = [
 ];
 
 export default function WhatHappened() {
+  const { isDark } = useTheme();
   const [selected, setSelected] = useState<string[]>([]);
 
   function toggle(id: string) {
@@ -120,16 +122,22 @@ export default function WhatHappened() {
   );
 
   return (
-    <div className="mt-8 rounded-2xl bg-[#141B3D] border border-[rgba(96,165,250,0.25)] p-6 sm:p-7 shadow-[0_4px_30px_rgba(11,18,48,0.5)]">
-      <div className="flex items-start justify-between gap-4 border-b border-[rgba(96,165,250,0.2)] pb-4 mb-6">
+    <div
+      className={`mt-8 rounded-3xl border p-6 sm:p-7 shadow-lg transition-colors ${
+        isDark
+          ? "bg-[#141B3D] border-slate-700"
+          : "bg-white border-amber-900/15 shadow-[0_10px_35px_rgba(0,0,0,0.05)]"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#0B1230] text-[#22D3EE] border border-[#22D3EE]/30 mb-2">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] mb-2 font-sans">
             Incident Response Guide
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white">
+          <h2 className="font-heading text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             Kya hua? Aapne kya kiya?
           </h2>
-          <p className="text-sm text-[#CBD5E1] mt-1">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 font-sans">
             Agar aapne is message par koi action liya hai, toh select karein. Hum aapko turant containment steps batayenge.
           </p>
         </div>
@@ -144,31 +152,33 @@ export default function WhatHappened() {
           return (
             <label
               key={option.id}
-              className={`flex items-start gap-3.5 p-4 rounded-xl border transition-all cursor-pointer select-none text-left ${
+              className={`flex items-start gap-3.5 p-4 rounded-2xl border transition-all cursor-pointer select-none text-left ${
                 isChecked
-                  ? "bg-[#1A2350] border-[#22D3EE] shadow-[0_0_20px_rgba(34,211,238,0.15)] ring-1 ring-[#22D3EE]/40"
-                  : "bg-[#0B1230]/70 border-[rgba(96,165,250,0.2)] hover:border-[rgba(96,165,250,0.4)] hover:bg-[#0B1230]"
+                  ? "bg-[#2563EB]/10 border-[#2563EB] ring-2 ring-[#2563EB]/30 shadow-md"
+                  : isDark
+                  ? "bg-[#0B1230]/70 border-slate-700 hover:border-slate-500 hover:bg-[#0B1230]"
+                  : "bg-[#FFFDF9] border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               }`}
             >
               <input
                 type="checkbox"
                 checked={isChecked}
                 onChange={() => toggle(option.id)}
-                className="mt-1 h-4 w-4 rounded border-[rgba(96,165,250,0.4)] bg-[#0B1230] text-[#22D3EE] focus:ring-[#22D3EE] focus:ring-offset-[#141B3D]"
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
                 aria-label={option.label}
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <Icon
                     className={`h-4 w-4 shrink-0 ${
-                      isChecked ? "text-[#22D3EE]" : "text-[#60A5FA]"
+                      isChecked ? "text-[#2563EB]" : "text-slate-500"
                     }`}
                   />
-                  <span className="font-semibold text-sm text-white">
+                  <span className="font-heading font-bold text-sm text-slate-900 dark:text-white">
                     {option.label}
                   </span>
                 </div>
-                <p className="text-xs text-[#CBD5E1] mt-0.5 leading-relaxed font-sans">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed font-sans">
                   {option.sublabel}
                 </p>
               </div>
@@ -179,41 +189,49 @@ export default function WhatHappened() {
 
       {/* Tailored Steps Output */}
       {steps.length > 0 ? (
-        <div className="rounded-xl bg-[#0B1230] border border-[rgba(96,165,250,0.25)] p-5 mt-4">
+        <div
+          className={`rounded-2xl border p-5 mt-4 ${
+            isDark ? "bg-[#0B1230] border-slate-700" : "bg-[#FAF8F5] border-slate-200"
+          }`}
+        >
           <div className="flex items-center gap-2 mb-4">
             {hasHighRiskSelection ? (
-              <AlertTriangle className="h-5 w-5 text-[#FBBF24]" />
+              <AlertTriangle className="h-5 w-5 text-[#F59E0B]" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-[#4ADE80]" />
+              <CheckCircle2 className="h-5 w-5 text-[#16A34A]" />
             )}
-            <h3 className="font-bold text-base text-white">
+            <h3 className="font-heading font-bold text-base text-slate-900 dark:text-white">
               Aapke liye agle surakshit kadam (Tailored Safe Actions)
             </h3>
           </div>
 
-          <ol className="space-y-3 pl-1">
+          <ol className="space-y-3 pl-1 font-sans">
             {steps.map((step, idx) => (
               <li
                 key={step}
-                className="flex items-start gap-3 text-sm text-[#CBD5E1] bg-[#141B3D]/80 p-3.5 rounded-lg border border-[rgba(96,165,250,0.2)]"
+                className={`flex items-start gap-3 text-sm p-3.5 rounded-xl border ${
+                  isDark
+                    ? "bg-[#141B3D] border-slate-700 text-slate-200"
+                    : "bg-white border-slate-200 text-slate-800 shadow-sm"
+                }`}
               >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0B1230] text-xs font-bold text-[#22D3EE] border border-[#22D3EE]/40">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-xs font-bold text-white">
                   {idx + 1}
                 </span>
-                <span className="leading-snug pt-0.5 text-[#CBD5E1]">{step}</span>
+                <span className="leading-snug pt-0.5">{step}</span>
               </li>
             ))}
           </ol>
 
           {/* Quick Helplines Box */}
-          <div className="mt-5 pt-4 border-t border-[rgba(96,165,250,0.2)] flex flex-wrap items-center justify-between gap-3 text-xs text-[#CBD5E1]">
-            <span className="font-medium text-[#CBD5E1]">
+          <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-sans">
+            <span className="font-medium text-slate-600 dark:text-slate-400">
               National Emergency Contacts:
             </span>
             <div className="flex items-center gap-2">
               <a
                 href="tel:1930"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 border border-[#FB7185]/40 text-[#FB7185] font-semibold transition-colors shadow-[0_0_15px_rgba(251,113,133,0.15)]"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#E11D48] text-white font-bold transition-colors shadow-sm"
               >
                 <PhoneCall className="h-3.5 w-3.5" />
                 Call 1930 Helpline
@@ -222,28 +240,32 @@ export default function WhatHappened() {
                 href="https://cybercrime.gov.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#141B3D] hover:bg-[#1A2350] border border-[rgba(96,165,250,0.3)] text-white font-medium transition-colors"
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border font-bold transition-colors ${
+                  isDark
+                    ? "bg-[#141B3D] border-slate-700 text-white"
+                    : "bg-white border-slate-300 text-slate-800 shadow-sm"
+                }`}
               >
-                <Globe className="h-3.5 w-3.5 text-[#22D3EE]" />
+                <Globe className="h-3.5 w-3.5 text-[#2563EB]" />
                 cybercrime.gov.in
               </a>
             </div>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-[rgba(96,165,250,0.25)] p-4 text-center text-sm text-[#CBD5E1]">
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-center text-sm text-slate-500 font-sans">
           Upar diye gaye options mein se select karein taaki hum aapko emergency recovery ke kadam dikha sakein.
         </div>
       )}
 
       {/* Always visible statutory footer */}
-      <div className="mt-4 flex items-center justify-between text-xs text-[#CBD5E1] border-t border-[rgba(96,165,250,0.15)] pt-3">
+      <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-3 font-sans">
         <span>National Cyber Crime Reporting Helpline: 1930</span>
         <a
           href="https://cybercrime.gov.in"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#60A5FA] hover:underline inline-flex items-center gap-1 font-medium"
+          className="text-[#2563EB] hover:underline inline-flex items-center gap-1 font-semibold"
         >
           cybercrime.gov.in
           <ExternalLink className="h-3 w-3" />

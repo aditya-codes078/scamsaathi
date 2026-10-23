@@ -1,6 +1,96 @@
-import { Shield, ArrowRight, Lock, Sparkles, CheckCircle2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Shield, ArrowRight, Lock, Sparkles, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { useTheme } from "./ThemeContext";
+
+interface FloatingBubble {
+  id: number;
+  snippet: string;
+  badge: string;
+  badgeColor: string;
+  tagline: string;
+  explanation: string;
+  positionClass: string;
+}
+
+const FLOATING_BUBBLES: FloatingBubble[] = [
+  {
+    id: 1,
+    snippet: "Win ₹50,000 Cash Prize!",
+    badge: "Prize Scam",
+    badgeColor: "#F59E0B",
+    tagline: "Unsolicited Reward Bait",
+    explanation: "Scammers promise unexpected lottery or prize money to demand advance processing fees or personal bank data.",
+    positionClass: "-top-6 -left-4 sm:-left-12",
+  },
+  {
+    id: 2,
+    snippet: "CBI Digital Arrest Notice",
+    badge: "Authority Threat",
+    badgeColor: "#E11D48",
+    tagline: "Coercive Police Impersonation",
+    explanation: "Law enforcement and CBI never conduct arrests, trials, or asset seizures via WhatsApp or video calls.",
+    positionClass: "top-1/3 -right-4 sm:-right-12",
+  },
+  {
+    id: 3,
+    snippet: "Part-time review ₹3000/day",
+    badge: "Task Scam",
+    badgeColor: "#7C3AED",
+    tagline: "Prepaid Job Trap",
+    explanation: "Victims are lured with easy rating jobs, then trapped into paying deposits for nonexistent commission withdrawals.",
+    positionClass: "-bottom-6 -left-2 sm:-left-8",
+  },
+];
 
 export default function Hero() {
+  const { isDark } = useTheme();
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [activeBubble, setActiveBubble] = useState<FloatingBubble | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isReducedMotion = useRef<boolean>(false);
+
+  useEffect(() => {
+    isReducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Mobile device tilt listener if available
+    function handleOrientation(e: DeviceOrientationEvent) {
+      if (isReducedMotion.current) return;
+      if (e.beta !== null && e.gamma !== null) {
+        // Clamp tilt values for gentle 3D effect
+        const tiltX = Math.max(-12, Math.min(12, (e.beta - 45) / 3));
+        const tiltY = Math.max(-12, Math.min(12, e.gamma / 3));
+        setRotate({ x: -tiltX, y: tiltY });
+      }
+    }
+
+    const doe = window.DeviceOrientationEvent as unknown as { requestPermission?: () => unknown };
+    if (window.DeviceOrientationEvent && typeof doe?.requestPermission !== "function") {
+      window.addEventListener("deviceorientation", handleOrientation);
+    }
+
+    return () => {
+      window.removeEventListener("deviceorientation", handleOrientation);
+    };
+  }, []);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (isReducedMotion.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const x = e.clientX - centerX;
+    const y = e.clientY - centerY;
+    // Damped 3D rotation angles
+    setRotate({
+      x: -(y / 20),
+      y: x / 20,
+    });
+  }
+
+  function handleMouseLeave() {
+    setRotate({ x: 0, y: 0 });
+  }
+
   function scrollToChecker() {
     const el = document.querySelector("#checker");
     if (el) {
@@ -9,45 +99,52 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-32">
-      {/* Soft radial cyan and violet glow behind hero */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#22D3EE]/15 via-[#A78BFA]/15 to-transparent blur-3xl rounded-full pointer-events-none -z-10" />
+    <section className="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-24 lg:pt-20 lg:pb-28">
+      {/* Asymmetric warm glow accents for bright theme */}
+      <div className="absolute top-12 left-1/4 w-96 h-96 bg-[#2563EB]/10 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-28 right-1/4 w-96 h-96 bg-[#7C3AED]/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Headline and Call-to-actions */}
+          {/* Left Column: Asymmetric large typography & honest copy */}
           <div className="lg:col-span-7 text-center lg:text-left space-y-6">
-            {/* Hackathon & Category Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141B3D] border border-[rgba(96,165,250,0.3)] text-xs text-[#CBD5E1] shadow-[0_0_15px_rgba(34,211,238,0.1)]">
-              <span className="flex h-2 w-2 rounded-full bg-[#22D3EE] animate-ping" />
-              <span className="font-semibold text-white">HackIndia x KIT 2026</span>
-              <span className="text-slate-500">|</span>
-              <span className="text-[#60A5FA]">Team Build Beyond</span>
+            {/* Hackathon credential badge */}
+            <div
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-sm ${
+                isDark
+                  ? "bg-[#141B3D] border border-slate-700 text-slate-300"
+                  : "bg-white border border-amber-900/15 text-slate-800"
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
+              <span>HackIndia x KIT 2026</span>
+              <span className="text-slate-400">·</span>
+              <span className="text-[#2563EB] font-bold">Team Build Beyond</span>
             </div>
 
-            {/* Main Headline with cyan-to-violet gradient highlight word */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            {/* Main Headline (Space Grotesk, large, honest) */}
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
               From Suspicion to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22D3EE] to-[#A78BFA]">
+              <span className="underline decoration-[#2563EB] decoration-wavy decoration-4 underline-offset-8">
                 Safe Recovery
               </span>
             </h1>
 
-            {/* One-line subtext required by prompt */}
-            <p className="text-lg sm:text-xl text-white font-medium max-w-2xl mx-auto lg:mx-0">
+            {/* Required one-line subtext */}
+            <p className="text-lg sm:text-xl text-slate-700 dark:text-slate-300 font-semibold max-w-2xl mx-auto lg:mx-0 font-sans">
               Explainable Hindi/English cyber-safety response agent
             </p>
 
-            <p className="text-sm sm:text-base text-[#CBD5E1] max-w-xl mx-auto lg:mx-0 leading-relaxed font-sans">
-              Don’t let digital fraudsters panic you. Paste any suspicious WhatsApp offer, fake KYC alert, or job notification to understand the exact evidence and get step-by-step recovery guidance.
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed font-sans">
+              Digital scams exploit panic and urgency. ScamSaathi breaks down suspicious WhatsApp messages, fake job offers, and bogus bank notices into plain, evidence-backed advice so you can respond safely.
             </p>
 
-            {/* Primary Action Button (Blue-to-cyan gradient) */}
+            {/* Primary Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
               <button
                 type="button"
                 onClick={scrollToChecker}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#60A5FA] to-[#22D3EE] hover:from-[#5294ea] hover:to-[#1cb8cf] text-slate-950 font-bold text-base shadow-[0_0_25px_rgba(34,211,238,0.3)] hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] transition-all transform hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#22D3EE]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-heading font-bold text-base shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all transform hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
               >
                 <span>Check a message</span>
                 <ArrowRight className="w-5 h-5" />
@@ -55,135 +152,190 @@ export default function Hero() {
 
               <a
                 href="#how-it-works"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#141B3D] hover:bg-[#1A2350] border border-[rgba(96,165,250,0.25)] text-white text-sm font-semibold transition-all hover:shadow-[0_0_15px_rgba(96,165,250,0.15)]"
+                className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all ${
+                  isDark
+                    ? "bg-[#141B3D] hover:bg-[#1E2958] text-slate-200 border border-slate-700"
+                    : "bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 shadow-sm"
+                }`}
               >
-                <span>How it works</span>
+                <span>How it works (5 steps)</span>
               </a>
             </div>
 
-            {/* Trust points - Updated with Honesty Fix */}
-            <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-[rgba(96,165,250,0.2)] text-xs text-[#CBD5E1]">
+            {/* Trust Points with Honesty Fixes */}
+            <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <Lock className="w-4 h-4 text-[#22D3EE] shrink-0" />
+                <Lock className="w-4 h-4 text-[#2563EB] shrink-0" />
                 <span>Never asks for OTP or PIN</span>
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <Sparkles className="w-4 h-4 text-[#A78BFA] shrink-0" />
+                <Sparkles className="w-4 h-4 text-[#7C3AED] shrink-0" />
                 <span>Hindi & English Breakdown</span>
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <CheckCircle2 className="w-4 h-4 text-[#4ADE80] shrink-0" />
-                {/* Honesty fix: Changed from "1930 Helpline Aligned" */}
+                <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                {/* Honesty fix */}
                 <span>Guides you to the 1930 helpline</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Clean SVG Visual with Honesty Fixes */}
+          {/* Right Column: Hand-crafted 3D Phone + Shield with Interactive Floating Bubbles */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-md">
-              {/* Outer Glow Ring */}
-              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-[#60A5FA]/20 via-[#22D3EE]/25 to-[#A78BFA]/20 blur-xl opacity-80" />
-
-              {/* Terminal / Scanner Card */}
-              <div className="relative rounded-2xl bg-[#141B3D] border border-[rgba(96,165,250,0.25)] p-5 sm:p-6 shadow-[0_4px_30px_rgba(11,18,48,0.6)]">
-                {/* Visual Header */}
-                <div className="flex items-center justify-between border-b border-[rgba(96,165,250,0.2)] pb-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-[#FB7185]" />
-                    <span className="w-3 h-3 rounded-full bg-[#FBBF24]" />
-                    <span className="w-3 h-3 rounded-full bg-[#4ADE80]" />
-                    <span className="ml-2 text-xs font-mono text-[#CBD5E1]">
-                      scamsaathi.ai // scanner
-                    </span>
+            <div
+              ref={containerRef}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              className="relative w-full max-w-sm sm:max-w-md perspective-1000 py-6 select-none"
+            >
+              {/* 3D Transform Container */}
+              <div
+                className="relative transition-transform duration-200 ease-out transform-style-3d flex items-center justify-center"
+                style={{
+                  transform: `rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
+                }}
+              >
+                {/* 3D Physical Phone Bezel */}
+                <div className="relative w-64 sm:w-72 h-[410px] rounded-[40px] bg-slate-900 border-[7px] border-slate-800 shadow-[0_25px_60px_rgba(0,0,0,0.35)] p-3 flex flex-col justify-between overflow-hidden">
+                  {/* Speaker & Camera Notch */}
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-4 bg-slate-800 rounded-full flex items-center justify-center gap-1.5 z-20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+                    <span className="w-8 h-1 bg-slate-700 rounded-full" />
                   </div>
-                  {/* Honesty Fix: Changed "REAL-TIME" to "DEMO" */}
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#22D3EE] bg-[#0B1230] px-2 py-0.5 rounded border border-[#22D3EE]/40 font-bold">
-                    <Shield className="w-3 h-3" />
-                    DEMO
-                  </span>
+
+                  {/* Phone Screen: HTML/CSS WhatsApp/SMS Mockup with FICTIONAL BANK "SafeBank" */}
+                  <div className="mt-4 w-full h-full rounded-[30px] bg-slate-950 p-3.5 flex flex-col justify-between text-white text-xs border border-slate-800">
+                    <div>
+                      {/* Top Header in Mockup */}
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-2.5 mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-[#2563EB] flex items-center justify-center font-bold text-white text-[11px]">
+                            SB
+                          </div>
+                          <div>
+                            {/* Fictional Bank Name */}
+                            <span className="font-bold text-xs text-white block">SafeBank Alerts</span>
+                            <span className="text-[10px] text-slate-400 font-mono">+91 98XXX XXXXX</span>
+                          </div>
+                        </div>
+                        {/* Honesty Fix: DEMO badge */}
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          DEMO
+                        </span>
+                      </div>
+
+                      {/* Simulated Suspicious SMS Message Bubble */}
+                      <div className="rounded-2xl rounded-tl-sm bg-slate-900 border border-slate-700 p-3 shadow-md space-y-1.5">
+                        <p className="text-slate-200 text-xs leading-relaxed font-sans">
+                          "Dear Customer, your <strong className="text-white">SafeBank</strong> account is locked today due to pending KYC. Visit <span className="text-[#60A5FA] underline">http://bit.ly/safebank-kyc</span> and verify OTP immediately to avoid permanent deactivation."
+                        </p>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                          {/* Honesty Fix: Example message caption */}
+                          <span className="text-amber-400 font-medium">Example message (Illustration)</span>
+                          <span>10:42 AM</span>
+                        </div>
+                      </div>
+
+                      {/* Detected Evidence Flags inside screen */}
+                      <div className="mt-3 space-y-1.5">
+                        <div className="flex items-center justify-between p-1.5 rounded-lg bg-rose-950/60 border border-rose-500/30 text-[11px] text-rose-300">
+                          <span>🚩 False Account Urgency</span>
+                          <span className="font-bold">High Risk</span>
+                        </div>
+                        <div className="flex items-center justify-between p-1.5 rounded-lg bg-orange-950/60 border border-orange-500/30 text-[11px] text-orange-300">
+                          <span>🔗 Suspicious Shortener (bit.ly)</span>
+                          <span className="font-bold">Deceptive</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Home Indicator Bar */}
+                    <div className="w-24 h-1 bg-slate-600 rounded-full mx-auto" />
+                  </div>
                 </div>
 
-                {/* Simulated Incoming SMS Bubble with "Example message" caption */}
-                <div className="rounded-xl bg-[#0B1230] border border-[rgba(96,165,250,0.2)] p-3.5 mb-4">
-                  <div className="flex items-center justify-between text-xs text-[#CBD5E1] mb-1.5">
-                    <span className="font-mono text-white">VK-SBIPAY</span>
-                    {/* Honesty Fix: Small "Example message" caption */}
-                    <span className="text-[10px] text-[#A78BFA] font-medium uppercase tracking-wider">
-                      Example message (Illustration)
-                    </span>
+                {/* Interactive 3D Shield Badge in center */}
+                <div
+                  className="absolute -right-3 bottom-12 w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-[#14B8A6] p-0.5 shadow-2xl flex items-center justify-center transform hover:scale-110 transition-transform"
+                  style={{ transform: "translateZ(35px)" }}
+                >
+                  <div className="w-full h-full bg-slate-950 rounded-2xl flex items-center justify-center">
+                    <Shield className="w-8 h-8 text-[#14B8A6]" />
                   </div>
-                  <p className="text-xs text-[#CBD5E1] leading-relaxed font-sans">
-                    "Your SBI account has been locked. Update PAN immediately to avoid permanent deactivation: <span className="text-[#60A5FA] underline">bit.ly/sbi-pan-kyc</span>"
-                  </p>
                 </div>
 
-                {/* Cyber Security Scanner SVG Visual */}
-                <div className="relative w-full h-36 bg-[#0B1230]/70 rounded-xl border border-[rgba(96,165,250,0.2)] flex items-center justify-center overflow-hidden mb-4">
-                  <svg
-                    viewBox="0 0 300 120"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-full h-full"
-                    aria-hidden="true"
+                {/* Floating Scam Message Bubbles (Click to open red-flag popover) */}
+                {FLOATING_BUBBLES.map((bubble) => (
+                  <button
+                    key={bubble.id}
+                    type="button"
+                    onClick={() => setActiveBubble(bubble)}
+                    className={`absolute ${bubble.positionClass} z-30 p-2.5 sm:p-3 rounded-2xl border text-left shadow-xl transition-all cursor-pointer transform hover:scale-105 active:scale-95 animate-bounce-slow ${
+                      isDark
+                        ? "bg-[#141B3D] border-slate-700 text-white"
+                        : "bg-white border-amber-900/15 text-slate-900"
+                    }`}
+                    style={{ transform: `translateZ(${bubble.id * 15}px)` }}
+                    title="Click to view why this message is a red flag"
                   >
-                    {/* Background Grid Lines */}
-                    <path
-                      d="M0 30 H300 M0 60 H300 M0 90 H300 M60 0 V120 M120 0 V120 M180 0 V120 M240 0 V120"
-                      stroke="#22D3EE"
-                      strokeOpacity="0.12"
-                      strokeWidth="0.8"
-                      strokeDasharray="3 3"
-                    />
-
-                    {/* Threat Signal Pulse Line */}
-                    <path
-                      d="M 10 60 L 50 60 L 70 30 L 85 90 L 105 45 L 120 60 L 170 60 L 190 25 L 205 95 L 225 60 L 290 60"
-                      stroke="#22D3EE"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="opacity-95"
-                    />
-
-                    {/* Radar Target Rings */}
-                    <circle cx="150" cy="60" r="45" stroke="#60A5FA" strokeWidth="1" strokeOpacity="0.35" strokeDasharray="4 4" />
-                    <circle cx="150" cy="60" r="25" stroke="#22D3EE" strokeWidth="1.5" strokeOpacity="0.8" />
-                    <circle cx="150" cy="60" r="4" fill="#22D3EE" />
-
-                    {/* Threat Node Markers */}
-                    <g transform="translate(85, 90)">
-                      <circle cx="0" cy="0" r="4" fill="#FB7185" />
-                      <circle cx="0" cy="0" r="8" stroke="#FB7185" strokeWidth="1" strokeOpacity="0.5" />
-                    </g>
-                    <g transform="translate(190, 25)">
-                      <circle cx="0" cy="0" r="4" fill="#FB923C" />
-                      <circle cx="0" cy="0" r="8" stroke="#FB923C" strokeWidth="1" strokeOpacity="0.5" />
-                    </g>
-                  </svg>
-
-                  {/* Scanning Overlay Text */}
-                  <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[11px] font-mono text-[#CBD5E1]">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#FB7185] animate-pulse" />
-                      Deception Detected
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: bubble.badgeColor }}
+                      />
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded"
+                        style={{
+                          color: bubble.badgeColor,
+                          backgroundColor: `${bubble.badgeColor}20`,
+                        }}
+                      >
+                        {bubble.badge}
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold block truncate max-w-[150px]">
+                      {bubble.snippet}
                     </span>
-                    <span className="text-[#FB7185] font-bold">Critical Risk</span>
-                  </div>
-                </div>
-
-                {/* Evidence Extraction Chips */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2 rounded-lg bg-[#0B1230] border border-[rgba(96,165,250,0.2)] flex items-center justify-between">
-                    <span className="text-[#CBD5E1]">Urgency:</span>
-                    <span className="text-[#FB7185] font-semibold">Artificial Panic</span>
-                  </div>
-                  <div className="p-2 rounded-lg bg-[#0B1230] border border-[rgba(96,165,250,0.2)] flex items-center justify-between">
-                    <span className="text-[#CBD5E1]">Target Link:</span>
-                    <span className="text-[#FB923C] font-semibold">Shortened / Fake</span>
-                  </div>
-                </div>
+                    <span className="text-[10px] text-slate-500 font-medium block">
+                      Tap to reveal trap 👆
+                    </span>
+                  </button>
+                ))}
               </div>
+
+              {/* Red-flag Popover Modal for clicked bubble */}
+              {activeBubble && (
+                <div className="absolute inset-x-2 top-10 z-40 p-4 rounded-2xl bg-slate-900 border border-slate-700 text-white shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-400" />
+                      <span className="font-heading font-bold text-sm text-white">
+                        {activeBubble.tagline}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveBubble(null)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed font-sans mb-3">
+                    {activeBubble.explanation}
+                  </p>
+                  <div className="flex justify-between items-center text-[10px] text-slate-400">
+                    <span>Pattern: <strong>{activeBubble.badge}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveBubble(null)}
+                      className="font-bold text-[#2563EB] hover:underline cursor-pointer"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

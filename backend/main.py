@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+from url_check import deep_check_urls
 app = FastAPI(title="ScamSaathi API")
 
 # Frontend (localhost aur Netlify) ko allow karo
@@ -124,7 +124,11 @@ def analyze(req: AnalyzeRequest):
     url_signals, url_score = check_urls(text)
     signals += url_signals
     score += url_score
-
+    extra_signals, extra_score = deep_check_urls(URL_RE.findall(text))
+    for s in extra_signals:
+        if s not in signals:
+            signals.append(s)
+    score += extra_score
     level = level_from(score)
     if signals:
         explanation = (
