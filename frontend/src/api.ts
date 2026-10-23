@@ -1,11 +1,12 @@
 import type { AnalysisResult, RiskLevel } from "./types";
 
 /**
- * MOCK MODE TOGGLE
- * Set to `false` when connecting to the live FastAPI / Python backend on http://localhost:8000.
- * Default is `true` for offline hackathon evaluations and frontend demos.
+ * API MODE
+ * USE_MOCK = false -> calls the FastAPI backend (VITE_API_URL when deployed, http://localhost:8000 in dev).
+ * USE_MOCK = true  -> uses the offline rule-based analyzer below (no backend needed).
  */
-export const USE_MOCK = true;
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+export const USE_MOCK = false;
 
 interface DetectedSignal {
   name: string;
@@ -257,9 +258,9 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 }
 
 /**
- * Analyzes incoming message text via backend API or offline mock
+ * Analyzes incoming message text via the backend API (or the offline analyzer in mock mode).
  * Contract:
- * POST http://localhost:8000/analyze
+ * POST {API_URL}/analyze
  * Request: { "text": string }
  * Response: { "risk_level": "Low" | "Caution" | "High" | "Critical", "signals": string[], "explanation": string, "safe_actions": string[] }
  */
@@ -270,12 +271,18 @@ export async function analyze(text: string): Promise<AnalysisResult> {
     return runRuleBasedAnalyzer(text);
   }
 
-  // Production/Dev API connection to local FastAPI backend
-  const res = await fetch("http://localhost:8000/analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-  });
+  // Production/Dev API connection (VITE_API_URL on deploy, localhost:8000 in dev)
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+  } catch {
+    // Backend unreachable (offline or server asleep): fall back to the local rules
+    return runRuleBasedAnalyzer(text);
+  }
 
   if (!res.ok) {
     throw new Error(`Server returned error code ${res.status}`);
