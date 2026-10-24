@@ -1,3 +1,4 @@
-fastapi
-uvicorn
+django
+django-cors-headers
 httpx
+gunicorn; sys_platform != "win32"

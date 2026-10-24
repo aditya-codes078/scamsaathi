@@ -1,32 +1,12 @@
+"""
+engine.py: the ScamSaathi analysis logic (framework independent).
+Same steps as before: 1) rules  2) link checks  3) optional Gemini (can only RAISE risk).
+"""
 import re
 from urllib.parse import urlparse
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from url_check import deep_check_urls
-app = FastAPI(title="ScamSaathi API")
-
-# Frontend (localhost aur Netlify) ko allow karo
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://scamsaathi.netlify.app"],
-    allow_origin_regex=r"http://localhost:\d+",
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-class AnalyzeRequest(BaseModel):
-    text: str
-
-
-class AnalyzeResponse(BaseModel):
-    risk_level: str
-    signals: list[str]
-    explanation: str
-    safe_actions: list[str]
-
+from .ai_check import gemini_analyze
+from .url_check import deep_check_urls
 
 # (signal ka naam, weight, regex pattern)
 RULES = [
@@ -55,36 +35,6 @@ URL_RE = re.compile(
 SHORTENERS = {"bit.ly", "tinyurl.com", "cutt.ly", "rb.gy", "is.gd", "t.co", "goo.gl"}
 ODD_TLDS = (".xyz", ".top", ".click", ".icu", ".live", ".buzz", ".shop")
 
-
-def check_urls(text: str):
-    found, score = [], 0
-    for raw in URL_RE.findall(text):
-        url = raw if raw.lower().startswith("http") else "http://" + raw
-        host = (urlparse(url).hostname or "").lower()
-        if host.startswith("www."):
-            host = host[4:]
-        if host in SHORTENERS and "Short link" not in found:
-            found.append("Short link")
-            score += 2
-        elif re.fullmatch(r"\d{1,3}(\.\d{1,3}){3}", host) and "IP-address link" not in found:
-            found.append("IP-address link")
-            score += 3
-        elif host.endswith(ODD_TLDS) and "Suspicious domain" not in found:
-            found.append("Suspicious domain")
-            score += 2
-    return found, score
-
-
-def level_from(score: int) -> str:
-    if score <= 1:
-        return "Low"
-    if score <= 3:
-        return "Caution"
-    if score <= 9:
-        return "High"
-    return "Critical"
-
-
 ACTIONS = {
     "Low": [
         "Phir bhi OTP, PIN ya password kisi ko share na karein",
@@ -104,16 +54,39 @@ ACTIONS = {
 ACTIONS["Critical"] = ACTIONS["High"]
 
 
-@app.get("/")
-def health():
-    return {"status": "ok", "service": "ScamSaathi API"}
+def check_urls(text):
+    found, score = [], 0
+    for raw in URL_RE.findall(text):
+        url = raw if raw.lower().startswith("http") else "http://" + raw
+        host = (urlparse(url).hostname or "").lower()
+        if host.startswith("www."):
+            host = host[4:]
+        if host in SHORTENERS and "Short link" not in found:
+            found.append("Short link")
+            score += 2
+        elif re.fullmatch(r"\d{1,3}(\.\d{1,3}){3}", host) and "IP-address link" not in found:
+            found.append("IP-address link")
+            score += 3
+        elif host.endswith(ODD_TLDS) and "Suspicious domain" not in found:
+            found.append("Suspicious domain")
+            score += 2
+    return found, score
 
 
-@app.post("/analyze", response_model=AnalyzeResponse)
-def analyze(req: AnalyzeRequest):
-    text = req.text
+def level_from(score):
+    if score <= 1:
+        return "Low"
+    if score <= 3:
+        return "Caution"
+    if score <= 9:
+        return "High"
+    return "Critical"
+
+
+def analyze_text(text):
     signals, score = [], 0
 
+    # 1) Rule engine (always runs, it is the safety floor)
     for name, weight, pattern in RULES:
         if name == "OTP/PIN request" and SAFE_NOTE.search(text):
             continue
@@ -121,14 +94,17 @@ def analyze(req: AnalyzeRequest):
             signals.append(name)
             score += weight
 
+    # 2) Link checks (basic + deeper)
     url_signals, url_score = check_urls(text)
     signals += url_signals
     score += url_score
+
     extra_signals, extra_score = deep_check_urls(URL_RE.findall(text))
     for s in extra_signals:
         if s not in signals:
             signals.append(s)
     score += extra_score
+
     level = level_from(score)
     if signals:
         explanation = (
@@ -138,9 +114,22 @@ def analyze(req: AnalyzeRequest):
     else:
         explanation = "Koi bada red flag nahi mila, par fir bhi savdhaan rahein."
 
-    return AnalyzeResponse(
-        risk_level=level,
-        signals=signals,
-        explanation=explanation,
-        safe_actions=ACTIONS[level],
-    )
+    # 3) Gemini context analysis (optional: can only RAISE the risk, never lower it)
+    ai = gemini_analyze(text, signals)
+    if ai:
+        for s in ai["extra_signals"]:
+            if "AI: " + s not in signals:
+                signals.append("AI: " + s)
+        order = ["Low", "Caution", "High", "Critical"]
+        floor = {"likely_scam": "High", "suspicious": "Caution", "looks_ok": "Low"}[ai["verdict"]]
+        if order.index(floor) > order.index(level):
+            level = floor
+        if ai["explanation"]:
+            explanation = ai["explanation"]
+
+    return {
+        "risk_level": level,
+        "signals": signals,
+        "explanation": explanation,
+        "safe_actions": ACTIONS[level],
+    }
