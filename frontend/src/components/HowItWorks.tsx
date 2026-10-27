@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, MessageSquareText, Gauge, Compass, ShieldCheck, RotateCw } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 interface Step {
   number: string;
@@ -12,57 +13,58 @@ interface Step {
   actionTip: string;
 }
 
-const steps: Step[] = [
-  {
-    number: "01",
-    title: "Detect",
-    icon: Search,
-    tagline: "Scans text for psychological urgency, forged links, and impersonation.",
-    frontDetail: "Extracts deceptive link shorteners, unauthorized payment keywords, and artificial deadlines.",
-    backDeepDive: "Evaluates keyword frequencies and intent patterns without sending your message to external servers.",
-    actionTip: "Never click links received from unknown senders without secondary verification.",
-  },
-  {
-    number: "02",
-    title: "Explain",
-    icon: MessageSquareText,
-    tagline: "Breaks down hidden traps in everyday Hindi, Hinglish, and English.",
-    frontDetail: "Translates complex cybersecurity warnings into everyday relatable language for all family members.",
-    backDeepDive: "Explains WHY an offer is fake — e.g. legitimate companies never demand security deposits for jobs.",
-    actionTip: "Share plain-language explanations with elders who might be vulnerable to digital panic.",
-  },
-  {
-    number: "03",
-    title: "Assess risk",
-    icon: Gauge,
-    tagline: "Categorizes threats into transparent risk levels: Low, Caution, High, or Critical.",
-    frontDetail: "Weighted scoring derived exclusively from observable evidence in the text.",
-    backDeepDive: "OTP demands and authority threats receive high penalty weights due to immediate financial compromise risk.",
-    actionTip: "Even a single OTP request triggers Critical severity — treat it as an active attack.",
-  },
-  {
-    number: "04",
-    title: "Guide",
-    icon: Compass,
-    tagline: "Delivers immediate containment steps tailored to what happened.",
-    frontDetail: "Customized guidance if you clicked a link, downloaded an APK, or shared bank details.",
-    backDeepDive: "Includes airplane mode disconnection, credential resets, and app permission revocation steps.",
-    actionTip: "If an unauthorized APK was installed, turn on Airplane Mode immediately to kill remote access.",
-  },
-  {
-    number: "05",
-    title: "Act safely",
-    icon: ShieldCheck,
-    tagline: "Empowers swift incident recovery and direct reporting to India's official 1930 helpline.",
-    frontDetail: "Facilitates rapid evidence compilation for cybercrime.gov.in and bank lien procedures.",
-    backDeepDive: "Act within the golden hour so banks can freeze fraudulent transactions before money is withdrawn.",
-    actionTip: "Note down transaction UTR numbers before dialing the 1930 National Helpline.",
-  },
-];
-
 export default function HowItWorks() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+
+  const steps: Step[] = [
+    {
+      number: "01",
+      title: t.step1Title,
+      icon: Search,
+      tagline: t.step1Tagline,
+      frontDetail: t.step1Front,
+      backDeepDive: t.step1Back,
+      actionTip: t.step1Tip,
+    },
+    {
+      number: "02",
+      title: t.step2Title,
+      icon: MessageSquareText,
+      tagline: t.step2Tagline,
+      frontDetail: t.step2Front,
+      backDeepDive: t.step2Back,
+      actionTip: t.step2Tip,
+    },
+    {
+      number: "03",
+      title: t.step3Title,
+      icon: Gauge,
+      tagline: t.step3Tagline,
+      frontDetail: t.step3Front,
+      backDeepDive: t.step3Back,
+      actionTip: t.step3Tip,
+    },
+    {
+      number: "04",
+      title: t.step4Title,
+      icon: Compass,
+      tagline: t.step4Tagline,
+      frontDetail: t.step4Front,
+      backDeepDive: t.step4Back,
+      actionTip: t.step4Tip,
+    },
+    {
+      number: "05",
+      title: t.step5Title,
+      icon: ShieldCheck,
+      tagline: t.step5Tagline,
+      frontDetail: t.step5Front,
+      backDeepDive: t.step5Back,
+      actionTip: t.step5Tip,
+    },
+  ];
 
   function toggleFlip(stepNumber: string) {
     setFlippedCards((prev) => ({
@@ -82,13 +84,13 @@ export default function HowItWorks() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] mb-3">
-            Workflow & Agent Lifecycle
+            {t.howBadge}
           </div>
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            How ScamSaathi Works
+            {t.howTitle}
           </h2>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-400 font-sans">
-            A 5-step response engine that turns confusion into calm, decisive action. Tap any card to flip and explore tactical details.
+            {t.howSubtitle}
           </p>
         </div>
 
@@ -111,7 +113,7 @@ export default function HowItWorks() {
                     toggleFlip(step.number);
                   }
                 }}
-                aria-label={`Step ${step.number}: ${step.title}. Tap to flip card.`}
+                aria-label={`${t.stepNumberPrefix} ${step.number}: ${step.title}. ${t.stepTapFlip}.`}
               >
                 <div
                   className={`relative w-full h-full transform-style-3d transition-transform duration-500 rounded-2xl shadow-sm hover:shadow-xl ${
@@ -130,7 +132,7 @@ export default function HowItWorks() {
                       {/* Top Bar */}
                       <div className="flex items-center justify-between mb-3">
                         <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-[#2563EB]/10 text-[#2563EB]">
-                          Step {step.number}
+                          {t.stepNumberPrefix} {step.number}
                         </span>
                         <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#2563EB]">
                           <Icon className="w-5 h-5" />
@@ -149,41 +151,45 @@ export default function HowItWorks() {
                       </p>
                     </div>
 
-                    {/* Bottom Flip Trigger Hint */}
-                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-medium">
-                      <span className="flex items-center gap-1 text-[#2563EB]">
-                        <RotateCw className="w-3.5 h-3.5" />
-                        Tap to flip
-                      </span>
-                      <span>3D Card</span>
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                      <span>{t.stepTapFlip}</span>
+                      <RotateCw className="w-3.5 h-3.5 text-slate-400" />
                     </div>
                   </div>
 
-                  {/* BACK FACE OF CARD (Flipped 180deg) */}
+                  {/* BACK FACE OF CARD (FLIPPED 3D VIEW) */}
                   <div
-                    className={`absolute inset-0 backface-hidden rotate-y-180 p-5 rounded-2xl border flex flex-col justify-between ${
+                    className={`absolute inset-0 backface-hidden rotate-y-180 p-5 rounded-2xl border flex flex-col justify-between transition-colors ${
                       isDark
-                        ? "bg-[#1A2350] border-[#2563EB]/50 text-white"
-                        : "bg-slate-900 border-slate-800 text-white shadow-xl"
+                        ? "bg-gradient-to-br from-[#1E2958] to-[#141B3D] border-[#2563EB]/40 text-slate-100"
+                        : "bg-gradient-to-br from-[#EEF2FF] to-white border-[#2563EB]/30 text-slate-900"
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-3 text-xs text-slate-400">
-                        <span className="font-mono font-bold text-[#14B8A6]">
-                          Deep Dive · {step.title}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#2563EB]">
+                          {t.stepDeepDivePrefix}{step.number}
                         </span>
-                        <RotateCw className="w-3.5 h-3.5 text-slate-400" />
+                        <RotateCw className="w-4 h-4 text-[#2563EB]" />
                       </div>
-                      <p className="text-xs leading-relaxed text-slate-200 mb-3 font-sans">
+                      <h4 className="font-heading text-lg font-bold mb-2">
+                        {step.title}
+                      </h4>
+                      <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 mb-3 font-sans">
                         {step.backDeepDive}
                       </p>
-                      <div className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-[11px] text-amber-300 leading-relaxed">
-                        <strong>🛡️ Defense Tip:</strong> {step.actionTip}
+                      <div className="p-2.5 rounded-xl bg-[#2563EB]/10 border border-[#2563EB]/20 text-xs">
+                        <span className="font-bold text-[#2563EB] block mb-0.5">
+                          {t.stepDefenseTipPrefix}
+                        </span>
+                        <p className="text-[11px] leading-snug text-slate-700 dark:text-slate-200">
+                          {step.actionTip}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 text-center">
-                      Tap card to flip back
+                    <div className="pt-2 text-center text-[10px] text-slate-400">
+                      {t.stepTapBack}
                     </div>
                   </div>
                 </div>

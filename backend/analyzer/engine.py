@@ -1,6 +1,12 @@
 """
 engine.py: the ScamSaathi analysis logic (framework independent).
-Same steps as before: 1) rules  2) link checks  3) optional Gemini (can only RAISE risk).
+
+Steps: 1) rules  2) link checks  3) optional Gemini (can only RAISE the risk).
+Languages: lang="en" (English) or lang="hi" (Hindi, Devanagari).
+Rule detection understands English, Roman Hinglish and Devanagari Hindi.
+
+Important: the keys in `signals` stay the same in every language (the website uses
+them for highlighting). The readable text for each signal is in `signal_labels`.
 """
 import re
 from urllib.parse import urlparse
@@ -8,25 +14,65 @@ from urllib.parse import urlparse
 from .ai_check import gemini_analyze
 from .url_check import deep_check_urls
 
-# (signal ka naam, weight, regex pattern)
+LANGS = ("en", "hi")
+
+# ---------------------------------------------------------------- patterns
+OTP_WORDS = r"(?:\b(?:otp|pin|cvv|password|passcode)\b|ओटीपी|पिन|सीवीवी|पासवर्ड|पासकोड)"
+# verbs that come BEFORE the secret ("share your OTP") and AFTER it ("OTP bhejein")
+VERBS_BEFORE = (
+    r"(?:share|send|tell|give|enter|bata\w*|bhej\w*|daal\w*|"
+    r"\bde(?:na|do|dijiye|dein)?\b|शेयर|भेज|बता|दीजिए|दीजिये|दें|डाल)"
+)
+VERBS_AFTER = (
+    r"(?:share|send|confirm|verify|bata\w*|bhej\w*|daal\w*|"
+    r"\bde(?:na|do|dijiye|dein)?\b|शेयर|भेज|बता|दीजिए|दीजिये|दें|दो|डाल)"
+)
+
+# (signal key, weight, regex pattern)
 RULES = [
-    ("Urgency", 1, r"urgent|immediately|expires?|last chance|turant|abhi|jaldi|तुरंत|जल्दी"),
+    ("Urgency", 1,
+     r"urgent|immediately|expires?|last chance|turant|abhi|jaldi|aaj\s*hi|24\s*ghante"
+     r"|तुरंत|जल्दी|फौरन|24\s*घंटे|अंतिम\s*तिथि|आज\s*ही"),
     ("OTP/PIN request", 3,
-     r"(share|send|tell|give|enter|bata\w*|bhej\w*).{0,25}\b(otp|pin|cvv)\b"
-     r"|\b(otp|pin|cvv)\b.{0,25}(share|send|confirm|verify)"
-     r"|(share|send|enter|give).{0,25}password"),
+     VERBS_BEFORE + r".{0,30}" + OTP_WORDS
+     + "|" + OTP_WORDS + r".{0,30}" + VERBS_AFTER
+     + r"|(?:share|send|enter|give).{0,25}password"),
     ("Fake KYC / bank threat", 2,
-     r"\bkyc\b|account.{0,20}(blocked|suspended|closed|freeze)|bank account|net ?banking"),
+     r"\bkyc\b|केवाईसी|account.{0,20}(?:blocked|suspended|closed|freeze|band|block\s*ho)"
+     r"|खाता.{0,25}(?:बंद|ब्लॉक|फ्रीज|सस्पेंड|निलंबित)|khata.{0,20}(?:band|block)"
+     r"|bank account|net ?banking"),
     ("Payment demand", 3,
-     r"registration fee|processing fee|security deposit|pay\s*(rs\.?|₹)?\s*\d+|send money|refund"),
-    ("Prize / lottery", 2, r"lottery|you (have )?won|prize|lucky draw|reward"),
-    ("Job / internship bait", 1, r"selected for|internship|work from home|part[- ]?time job"),
-    ("Authority threat", 3, r"police|\bcbi\b|customs|arrest|legal action|digital arrest"),
-    ("Secrecy", 2, r"don'?t tell|do not tell|keep (this )?secret|kisi ko mat batana"),
+     r"registration fee|processing fee|security deposit|pay\s*(?:rs\.?|₹)?\s*\d+|send money|refund"
+     r"|(?:paise|rupaye|rupees?|rs\.?|₹)\s*\d*.{0,20}(?:bhej\w*|jama|transfer)"
+     r"|(?:bhej\w*|jama\s*kar\w*|transfer).{0,20}(?:rs\.?|₹|paise|rupaye|rupees)"
+     r"|(?:रुपये|रुपए|₹|पैसे).{0,20}(?:भेज|जमा|ट्रांसफर)"
+     r"|(?:भेज|जमा|ट्रांसफर).{0,20}(?:रुपये|रुपए|₹|पैसे)"
+     r"|(?:फीस|शुल्क).{0,20}(?:भेज|जमा|ट्रांसफर|भुगतान|दें|दो)|रजिस्ट्रेशन\s*(?:फीस|शुल्क)|रिफंड"),
+    ("Prize / lottery", 2,
+     r"lottery|you (?:have )?won|prize|lucky draw|reward|inaam|लॉटरी|इनाम|ईनाम"
+     r"|(?:जीता|जीते|जीती|jeeta|jeete).{0,20}(?:लाख|करोड़|lakh|crore)"),
+    ("Job / internship bait", 1,
+     r"selected for|internship|work from home|part[- ]?time job|ghar\s*baithe"
+     r"|इंटर्नशिप|घर\s*बैठे|नौकरी.{0,20}(?:मिली|चयन)"),
+    ("Authority threat", 3,
+     r"police|\bcbi\b|customs|arrest|legal action|digital arrest|case\s*darj"
+     r"|पुलिस|सीबीआई|कस्टम|गिरफ्तार|वारंट|एफआईआर|डिजिटल\s*अरेस्ट|कानूनी\s*कार्रवाई|मुकदमा"),
+    ("Secrecy", 2,
+     r"don'?t tell|do not tell|keep (?:this )?secret|kisi\s*ko\s*(?:bhi\s*)?(?:mat|na)\s*bata"
+     r"|किसी\s*को\s*(?:भी\s*)?(?:मत|न)\s*बता"),
 ]
 
-# "Do not share OTP" jaise asli bank messages ko galat flag hone se bachane ke liye
+# Real bank warnings like "Do not share OTP" must not be flagged as OTP requests
 SAFE_NOTE = re.compile(r"\b(do not|don'?t|never|mat|na)\s+share", re.IGNORECASE)
+SAFE_NOTE_LOCAL = re.compile(
+    OTP_WORDS + r".{0,40}(?:"
+    r"(?:शेयर|साझा)\s*(?:न|मत)\s*कर"
+    r"|किसी\s*(?:को|के\s*साथ)\s*(?:भी\s*)?(?:शेयर|साझा|न|मत)"
+    r"|share\s*(?:na|mat)\s*kar"
+    r"|kisi\s*(?:ko|ke\s*saath)\s*(?:bhi\s*)?(?:share|mat|na)"
+    r")",
+    re.IGNORECASE,
+)
 
 URL_RE = re.compile(
     r"(?:https?://|www\.)[^\s]+|\b(?:bit\.ly|tinyurl\.com|cutt\.ly|rb\.gy|is\.gd|t\.co|goo\.gl)/[^\s]+",
@@ -35,25 +81,119 @@ URL_RE = re.compile(
 SHORTENERS = {"bit.ly", "tinyurl.com", "cutt.ly", "rb.gy", "is.gd", "t.co", "goo.gl"}
 ODD_TLDS = (".xyz", ".top", ".click", ".icu", ".live", ".buzz", ".shop")
 
-ACTIONS = {
-    "Low": [
-        "Phir bhi OTP, PIN ya password kisi ko share na karein",
-        "Shak ho toh official channel se verify karein",
-    ],
-    "Caution": [
-        "Jaldi mein koi kadam na uthayein",
-        "Sender ki pehchaan official channel se verify karein",
-        "Link ya OTP kisi ko na dein",
-    ],
-    "High": [
-        "Link par click na karein aur kuch bhi share na karein",
-        "Bank ki official app ya website se khud verify karein",
-        "Message save karke 1930 par ya cybercrime.gov.in par report karein",
-    ],
+# ------------------------------------------------------------- translations
+SIGNAL_LABELS = {
+    "en": {
+        "Urgency": "Urgency: pressure to act fast",
+        "OTP/PIN request": "Asks for OTP / PIN / password",
+        "Fake KYC / bank threat": "Fake KYC or bank-account threat",
+        "Payment demand": "Asks you to pay or send money",
+        "Prize / lottery": "Prize or lottery bait",
+        "Job / internship bait": "Job or internship bait",
+        "Authority threat": "Police or legal threat",
+        "Secrecy": "Asks you to keep it secret",
+        "Short link": "Shortened link",
+        "IP-address link": "Link uses an IP address",
+        "Suspicious domain": "Suspicious website address",
+        "Disguised (punycode) domain": "Disguised website address",
+        "Link mein '@' trick": "'@' trick in the link",
+        "Link secure (https) nahi hai": "Link is not secure (no https)",
+        "Bahut zyada subdomains wala link": "Link has too many subdomains",
+        "Bank/brand jaisa dikhne wala nakli domain": "Fake look-alike bank/brand domain",
+        "Google Safe Browsing ne is link ko unsafe report kiya hai": "Google Safe Browsing flags this link as unsafe",
+    },
+    "hi": {
+        "Urgency": "जल्दबाज़ी का दबाव",
+        "OTP/PIN request": "OTP / PIN / पासवर्ड माँगा गया",
+        "Fake KYC / bank threat": "नकली KYC / बैंक खाता बंद होने की धमकी",
+        "Payment demand": "पैसे भेजने या फीस की माँग",
+        "Prize / lottery": "इनाम / लॉटरी का लालच",
+        "Job / internship bait": "नौकरी / इंटर्नशिप का झाँसा",
+        "Authority threat": "पुलिस / कानूनी कार्रवाई की धमकी",
+        "Secrecy": "किसी को न बताने का दबाव",
+        "Short link": "छोटा (shortened) लिंक",
+        "IP-address link": "लिंक में IP एड्रेस है",
+        "Suspicious domain": "संदिग्ध वेबसाइट एड्रेस",
+        "Disguised (punycode) domain": "छिपाया हुआ वेबसाइट एड्रेस",
+        "Link mein '@' trick": "लिंक में '@' की चाल",
+        "Link secure (https) nahi hai": "लिंक सुरक्षित (https) नहीं है",
+        "Bahut zyada subdomains wala link": "लिंक में बहुत ज़्यादा सबडोमेन हैं",
+        "Bank/brand jaisa dikhne wala nakli domain": "बैंक/ब्रांड जैसा दिखने वाला नकली डोमेन",
+        "Google Safe Browsing ne is link ko unsafe report kiya hai": "Google Safe Browsing ने इस लिंक को असुरक्षित बताया है",
+    },
 }
-ACTIONS["Critical"] = ACTIONS["High"]
+DESTINATION_PREFIX = "Short link ka asli destination: "
+DESTINATION_TEXT = {"en": "Short link leads to: ", "hi": "छोटा लिंक यहाँ ले जाता है: "}
+
+EXPLANATION = {
+    "en": {
+        "flags": (
+            "This message shows these red flags: {labels}. Scammers create pressure so you act "
+            "without thinking, so pause and verify through an official channel first."
+        ),
+        "none": (
+            "No major red flags were found, but stay careful. "
+            "This does not guarantee the message is safe."
+        ),
+    },
+    "hi": {
+        "flags": (
+            "इस संदेश में ये खतरे के संकेत मिले: {labels}। ठग जल्दबाज़ी का दबाव बनाते हैं, "
+            "इसलिए रुककर पहले आधिकारिक माध्यम से जाँच करें।"
+        ),
+        "none": (
+            "कोई बड़ा खतरे का संकेत नहीं मिला, फिर भी सावधान रहें। "
+            "इसका मतलब यह नहीं कि संदेश सुरक्षित है।"
+        ),
+    },
+}
+
+ACTIONS = {
+    "en": {
+        "Low": [
+            "Still, never share your OTP, PIN or password with anyone",
+            "If in doubt, verify through an official channel",
+        ],
+        "Caution": [
+            "Do not act in a hurry",
+            "Verify the sender through an official channel",
+            "Do not give any link or OTP to anyone",
+        ],
+        "High": [
+            "Do not click the link and do not share any details",
+            "Check yourself in the bank's official app or website",
+            "Save the message and report it: call 1930 or visit cybercrime.gov.in",
+        ],
+    },
+    "hi": {
+        "Low": [
+            "फिर भी OTP, PIN या पासवर्ड किसी के साथ साझा न करें",
+            "शक हो तो आधिकारिक माध्यम से जाँच करें",
+        ],
+        "Caution": [
+            "जल्दबाज़ी में कोई कदम न उठाएँ",
+            "भेजने वाले की पहचान आधिकारिक माध्यम से जाँचें",
+            "किसी को लिंक या OTP न दें",
+        ],
+        "High": [
+            "लिंक पर क्लिक न करें और कोई जानकारी साझा न करें",
+            "बैंक की आधिकारिक ऐप या वेबसाइट से खुद जाँच करें",
+            "संदेश सहेजकर 1930 पर कॉल करें या cybercrime.gov.in पर रिपोर्ट करें",
+        ],
+    },
+}
+for _lang in ACTIONS:
+    ACTIONS[_lang]["Critical"] = ACTIONS[_lang]["High"]
 
 
+def signal_label(signal, lang):
+    """Readable text for one signal in the chosen language."""
+    if signal.startswith(DESTINATION_PREFIX):
+        return DESTINATION_TEXT[lang] + signal[len(DESTINATION_PREFIX):]
+    return SIGNAL_LABELS[lang].get(signal, signal)  # "AI: ..." signals are already in the right language
+
+
+# ------------------------------------------------------------------ logic
 def check_urls(text):
     found, score = [], 0
     for raw in URL_RE.findall(text):
@@ -83,14 +223,20 @@ def level_from(score):
     return "Critical"
 
 
-def analyze_text(text):
+def analyze_text(text, lang="en"):
+    if lang not in LANGS:
+        lang = "en"
     signals, score = [], 0
 
     # 1) Rule engine (always runs, it is the safety floor)
+    english_warning = bool(SAFE_NOTE.search(text))
+    local_warning = bool(SAFE_NOTE_LOCAL.search(text))
     for name, weight, pattern in RULES:
-        if name == "OTP/PIN request" and SAFE_NOTE.search(text):
+        if name == "OTP/PIN request" and (english_warning or local_warning):
             continue
-        if re.search(pattern, text, re.IGNORECASE):
+        if name == "Secrecy" and local_warning:
+            continue
+        if re.search(pattern, text, re.IGNORECASE | re.DOTALL):
             signals.append(name)
             score += weight
 
@@ -107,15 +253,13 @@ def analyze_text(text):
 
     level = level_from(score)
     if signals:
-        explanation = (
-            "Is message mein ye red flags mile: " + ", ".join(signals) + ". "
-            "Scammers aksar jaldi karne ka pressure banate hain, isliye ruk kar verify karein."
-        )
+        labels = ", ".join(signal_label(s, lang) for s in signals)
+        explanation = EXPLANATION[lang]["flags"].format(labels=labels)
     else:
-        explanation = "Koi bada red flag nahi mila, par fir bhi savdhaan rahein."
+        explanation = EXPLANATION[lang]["none"]
 
     # 3) Gemini context analysis (optional: can only RAISE the risk, never lower it)
-    ai = gemini_analyze(text, signals)
+    ai = gemini_analyze(text, signals, lang)
     if ai:
         for s in ai["extra_signals"]:
             if "AI: " + s not in signals:
@@ -130,6 +274,7 @@ def analyze_text(text):
     return {
         "risk_level": level,
         "signals": signals,
+        "signal_labels": {s: signal_label(s, lang) for s in signals},
         "explanation": explanation,
-        "safe_actions": ACTIONS[level],
+        "safe_actions": ACTIONS[lang][level],
     }

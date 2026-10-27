@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Info, CheckCircle } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 interface EvidenceHighlightProps {
   text: string;
@@ -55,6 +56,7 @@ const THREAT_RULES: ThreatRule[] = [
 
 export default function EvidenceHighlight({ text, signals }: EvidenceHighlightProps) {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
   const [activeTooltip, setActiveTooltip] = useState<{ id: number; reason: string; category: string } | null>(null);
 
   if (!text || signals.length === 0) {
@@ -68,7 +70,7 @@ export default function EvidenceHighlight({ text, signals }: EvidenceHighlightPr
       >
         <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-[#16A34A]">
           <CheckCircle className="w-4 h-4" />
-          <span>No Threat Triggers Found in Message Text</span>
+          <span>{t.evidenceNoTriggersTitle}</span>
         </div>
         <p className="text-sm font-mono whitespace-pre-wrap leading-relaxed opacity-90">
           "{text}"
@@ -147,11 +149,11 @@ export default function EvidenceHighlight({ text, signals }: EvidenceHighlightPr
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-[#2563EB]" />
           <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            Evidence Highlight (Tap/Hover trigger words)
+            {t.evidenceTitle}
           </span>
         </div>
         <span className="text-[11px] text-slate-500 font-medium">
-          {nonOverlapping.length} detected pattern(s)
+          {t.evidencePatternsCount.replace("{count}", String(nonOverlapping.length))}
         </span>
       </div>
 
@@ -213,7 +215,7 @@ export default function EvidenceHighlight({ text, signals }: EvidenceHighlightPr
                     {chunk.rule.reason}
                   </span>
                   <span className="block text-[10px] text-slate-400 mt-1 italic">
-                    Tap anywhere to close
+                    {t.evidenceTapToClose}
                   </span>
                 </span>
               )}

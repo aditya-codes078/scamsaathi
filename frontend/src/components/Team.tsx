@@ -1,5 +1,14 @@
 import { Code, Brain, Shield, CheckCheck } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
+
+// Easy-to-edit GitHub profile URLs for Team Build Beyond
+const GITHUB_PROFILES: Record<string, string> = {
+  "Aditya Kumar": "https://github.com/aditya-codes078",
+  "Anshi Verma": "https://github.com/Anshi-Verma",
+  "Shourya Srivastava": "https://github.com/imShourya18",
+  "Devanshi Singh": "https://github.com/Devanshi-Singh17",
+};
 
 interface TeamMember {
   name: string;
@@ -8,45 +17,51 @@ interface TeamMember {
   imageSrc: string;
   icon: typeof Brain;
   accent: string;
+  githubUrl: string;
 }
-
-const teamMembers: TeamMember[] = [
-  {
-    name: "Anshi Verma",
-    role: "AI / Agent Workflow & Pitch lead",
-    focus: "Prompt engineering, agentic workflow orchestration, and pitch presentation.",
-    imageSrc: "/images/team-anshi.jpg",
-    icon: Brain,
-    accent: "#E11D48", // Coral / Rose
-  },
-  {
-    name: "Aditya Kumar",
-    role: "Frontend / UI Developer",
-    focus: "Responsive 3D UI/UX architecture, design systems, and incident response interactions.",
-    imageSrc: "/images/team-aditya.jpg",
-    icon: Code,
-    accent: "#2563EB", // Electric blue
-  },
-  {
-    name: "Shourya Srivastava",
-    role: "Backend / Security Developer",
-    focus: "FastAPI server, threat signal extraction pipeline, and cybercrime API integrations.",
-    imageSrc: "/images/team-shourya.jpg",
-    icon: Shield,
-    accent: "#F59E0B", // Amber
-  },
-  {
-    name: "Devanshi Singh",
-    role: "Research / QA",
-    focus: "Phishing attack taxonomy, test case validation, and Indian cyber law compliance.",
-    imageSrc: "/images/team-devanshi.jpg",
-    icon: CheckCheck,
-    accent: "#14B8A6", // Teal
-  },
-];
 
 export default function Team() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
+
+  const teamMembers: TeamMember[] = [
+    {
+      name: "Anshi Verma",
+      role: t.memberAnshiRole,
+      focus: t.memberAnshiFocus,
+      imageSrc: "/images/team-anshi.jpg",
+      icon: Brain,
+      accent: "#E11D48", // Coral / Rose
+      githubUrl: GITHUB_PROFILES["Anshi Verma"],
+    },
+    {
+      name: "Aditya Kumar",
+      role: t.memberAdityaRole,
+      focus: t.memberAdityaFocus,
+      imageSrc: "/images/team-aditya.jpg",
+      icon: Code,
+      accent: "#2563EB", // Electric blue
+      githubUrl: GITHUB_PROFILES["Aditya Kumar"],
+    },
+    {
+      name: "Shourya Srivastava",
+      role: t.memberShouryaRole,
+      focus: t.memberShouryaFocus,
+      imageSrc: "/images/team-shourya.jpg",
+      icon: Shield,
+      accent: "#F59E0B", // Amber
+      githubUrl: GITHUB_PROFILES["Shourya Srivastava"],
+    },
+    {
+      name: "Devanshi Singh",
+      role: t.memberDevanshiRole,
+      focus: t.memberDevanshiFocus,
+      imageSrc: "/images/team-devanshi.jpg",
+      icon: CheckCheck,
+      accent: "#14B8A6", // Teal
+      githubUrl: GITHUB_PROFILES["Devanshi Singh"],
+    },
+  ];
 
   return (
     <section
@@ -59,13 +74,13 @@ export default function Team() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] mb-3">
-            HackIndia x KIT AI & CyberTech Hackathon 2026
+            {t.teamBadge}
           </div>
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Meet Team Build Beyond
+            {t.teamTitle}
           </h2>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-400 font-sans">
-            A specialized student team combining agent workflows, modern frontend engineering, backend security, and cyber defense research.
+            {t.teamSubtitle}
           </p>
         </div>
 
@@ -103,9 +118,17 @@ export default function Team() {
                   </div>
                 </div>
 
-                {/* Name */}
+                {/* Name linked to GitHub Profile */}
                 <h3 className="font-heading text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-[#2563EB] transition-colors">
-                  {member.name}
+                  <a
+                    href={member.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${member.name} on GitHub (opens in a new tab)`}
+                    className="hover:underline decoration-[#2563EB]/40 underline-offset-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                  >
+                    {member.name}
+                  </a>
                 </h3>
 
                 {/* Role */}

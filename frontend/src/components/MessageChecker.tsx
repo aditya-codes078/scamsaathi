@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { analyze } from "../api";
 import WhatHappened from "../WhatHappened";
 import RiskDial from "./RiskDial";
@@ -6,6 +6,7 @@ import EvidenceHighlight from "./EvidenceHighlight";
 import ShareableSafetyCard from "./ShareableSafetyCard";
 import ScreenshotMode from "./ScreenshotMode";
 import type { AnalysisResult, RiskLevel, ExampleMessage } from "../types";
+import { useLanguage, type Language } from "../i18n";
 import {
   ShieldAlert,
   ShieldCheck,
@@ -93,7 +94,6 @@ const riskStyles: Record<
     border: string;
     bg: string;
     textColor: string;
-    label: string;
     icon: typeof ShieldCheck;
   }
 > = {
@@ -102,7 +102,6 @@ const riskStyles: Record<
     border: "border-[#16A34A]/30",
     bg: "bg-[#16A34A]/5",
     textColor: "text-[#16A34A]",
-    label: "Low Risk · No Immediate Flags",
     icon: ShieldCheck,
   },
   Caution: {
@@ -110,7 +109,6 @@ const riskStyles: Record<
     border: "border-[#F59E0B]/30",
     bg: "bg-[#F59E0B]/5",
     textColor: "text-[#F59E0B]",
-    label: "Caution · Unverified Signals",
     icon: AlertTriangle,
   },
   High: {
@@ -118,7 +116,6 @@ const riskStyles: Record<
     border: "border-[#F97316]/30",
     bg: "bg-[#F97316]/5",
     textColor: "text-[#F97316]",
-    label: "High Risk · Deception Patterns",
     icon: ShieldAlert,
   },
   Critical: {
@@ -126,15 +123,15 @@ const riskStyles: Record<
     border: "border-[#E11D48]/40",
     bg: "bg-[#E11D48]/5",
     textColor: "text-[#E11D48]",
-    label: "Critical Risk · Urgent Phishing Trap",
     icon: Flame,
   },
 };
 
 export default function MessageChecker() {
   const { isDark } = useTheme();
+  const { lang, t } = useLanguage();
 
-  // Mode tabs: "Message" | "Link" | "Screenshot"
+  // Mode tabs: "message" | "link" | "screenshot"
   const [activeMode, setActiveMode] = useState<CheckerMode>("message");
 
   // Inputs
@@ -148,8 +145,9 @@ export default function MessageChecker() {
 
   // Tab navigation refs for accessibility
   const tabListRef = useRef<HTMLDivElement | null>(null);
+  const isInitialMount = useRef(true);
 
-  async function handleAnalyze(rawText: string) {
+  async function handleAnalyze(rawText: string, overrideLang?: Language) {
     const input = rawText.trim();
     if (!input || loading) return;
 
@@ -157,18 +155,32 @@ export default function MessageChecker() {
     setFriendlyError(null);
     setAnalyzedInputText(input);
 
+    const targetLang = overrideLang || lang;
+
     try {
-      // Contract: POST /analyze with { text: string }
-      const res = await analyze(input);
+      // Contract: POST /analyze with { text: string, lang: "en" | "hi" }
+      const res = await analyze(input, targetLang);
       setResult(res);
     } catch (err: unknown) {
       console.error("Analysis request failed:", err);
-      // Friendly message required by prompt
-      setFriendlyError("Server abhi available nahi hai, thodi der baad try karein");
+      setFriendlyError(t.errorServerUnavailable);
     } finally {
       setLoading(false);
     }
   }
+
+  // Requirement 6: When the user switches language while a result is on screen,
+  // automatically re-run analyze() for the same input in the new language (show the loading state)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (result && analyzedInputText) {
+      handleAnalyze(analyzedInputText, lang);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   function handleSelectMessageExample(example: ExampleMessage) {
     setMessageText(example.text);
@@ -212,19 +224,26 @@ export default function MessageChecker() {
 
   const isLowWithNoSignals = result && result.risk_level === "Low" && result.signals.length === 0;
 
+  const riskTitleMap: Record<RiskLevel, string> = {
+    Low: t.riskTitleLow,
+    Caution: t.riskTitleCaution,
+    High: t.riskTitleHigh,
+    Critical: t.riskTitleCritical,
+  };
+
   return (
     <section id="checker" className="py-16 sm:py-24 scroll-mt-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] mb-3">
-            <span>Unified Inspection Engine</span>
+            <span>{t.checkerBadge}</span>
           </div>
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Check a Message, Link, or Screenshot
+            {t.checkerTitle}
           </h2>
           <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 font-sans">
-            Choose your input method below. We inspect structure and deceptive signals without storing your data.
+            {t.checkerSubtitle}
           </p>
         </div>
 
@@ -254,7 +273,7 @@ export default function MessageChecker() {
             }`}
           >
             <MessageSquare className="w-4 h-4" />
-            <span>Message</span>
+            <span>{t.tabMessage}</span>
           </button>
 
           {/* Tab 2: Link */}
@@ -274,7 +293,7 @@ export default function MessageChecker() {
             }`}
           >
             <Link2 className="w-4 h-4" />
-            <span>Link</span>
+            <span>{t.tabLink}</span>
           </button>
 
           {/* Tab 3: Screenshot */}
@@ -294,7 +313,7 @@ export default function MessageChecker() {
             }`}
           >
             <Camera className="w-4 h-4" />
-            <span>Screenshot</span>
+            <span>{t.tabScreenshot}</span>
           </button>
         </div>
 
@@ -313,9 +332,9 @@ export default function MessageChecker() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Try Message Examples:
+                    {t.messageExamplesLabel}
                   </span>
-                  <span className="text-[11px] text-slate-400">Click to fill & check</span>
+                  <span className="text-[11px] text-slate-400">{t.messageExamplesHint}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-4">
                   {MESSAGE_EXAMPLES.map((example) => {
@@ -364,7 +383,7 @@ export default function MessageChecker() {
                       ? "bg-[#0B1230] border-slate-700 text-white placeholder:text-slate-500"
                       : "bg-[#FFFDF9] border-slate-200 text-slate-900 placeholder:text-slate-400"
                   }`}
-                  placeholder="Paste suspicious SMS, WhatsApp message, Telegram job offer, or email content here..."
+                  placeholder={t.messagePlaceholder}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   disabled={loading}
@@ -375,10 +394,10 @@ export default function MessageChecker() {
                     type="button"
                     onClick={handleClearMessage}
                     className="absolute top-3 right-3 p-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                    title="Clear text"
+                    title={t.btnClear}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span className="sr-only sm:not-sr-only text-[11px]">Clear</span>
+                    <span className="sr-only sm:not-sr-only text-[11px]">{t.btnClear}</span>
                   </button>
                 )}
               </div>
@@ -387,7 +406,7 @@ export default function MessageChecker() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <Lock className="w-4 h-4 text-[#2563EB] shrink-0" />
-                  <span>Never paste OTP, PIN, password, or card numbers.</span>
+                  <span>{t.messagePrivacy}</span>
                 </div>
 
                 <button
@@ -399,11 +418,11 @@ export default function MessageChecker() {
                   {loading ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Evaluating message...</span>
+                      <span>{t.btnEvaluatingMessage}</span>
                     </>
                   ) : (
                     <>
-                      <span>Check Message</span>
+                      <span>{t.btnCheckMessage}</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -419,9 +438,9 @@ export default function MessageChecker() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Try Link Examples:
+                    {t.linkExamplesLabel}
                   </span>
-                  <span className="text-[11px] text-slate-400">Click to test URL analysis</span>
+                  <span className="text-[11px] text-slate-400">{t.linkExamplesHint}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-4">
                   {LINK_EXAMPLES.map((example) => {
@@ -474,7 +493,7 @@ export default function MessageChecker() {
                         ? "bg-[#0B1230] border-slate-700 text-white placeholder:text-slate-500"
                         : "bg-[#FFFDF9] border-slate-200 text-slate-900 placeholder:text-slate-400"
                     }`}
-                    placeholder="https://bit.ly/update-kyc or https://unknown-link.xyz"
+                    placeholder={t.linkPlaceholder}
                     value={linkInput}
                     onChange={(e) => setLinkInput(e.target.value)}
                     disabled={loading}
@@ -485,7 +504,7 @@ export default function MessageChecker() {
                       type="button"
                       onClick={handleClearLink}
                       className="absolute right-3 p-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                      title="Clear URL"
+                      title={t.btnClear}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -502,16 +521,14 @@ export default function MessageChecker() {
                 }`}
               >
                 <EyeOff className="w-4 h-4 text-[#2563EB] shrink-0" />
-                <span>
-                  <strong>We never open the link for you.</strong> We only inspect how it looks (shorteners, forged domains, high-risk TLDs).
-                </span>
+                <span>{t.linkNeverOpenNote}</span>
               </div>
 
               {/* Link Action Row */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <Lock className="w-4 h-4 text-[#2563EB] shrink-0" />
-                  <span>Links are inspected purely syntactically on your command.</span>
+                  <span>{t.linkZeroTrustNote}</span>
                 </div>
 
                 <button
@@ -523,11 +540,11 @@ export default function MessageChecker() {
                   {loading ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Inspecting URL...</span>
+                      <span>{t.btnInspectingUrl}</span>
                     </>
                   ) : (
                     <>
-                      <span>Check Link</span>
+                      <span>{t.btnCheckLink}</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -553,7 +570,7 @@ export default function MessageChecker() {
               <div className="flex items-start gap-2.5">
                 <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-rose-900 dark:text-rose-100">Temporary Notice</p>
+                  <p className="font-bold text-rose-900 dark:text-rose-100">{t.errorTitle}</p>
                   <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">{friendlyError}</p>
                 </div>
               </div>
@@ -562,7 +579,7 @@ export default function MessageChecker() {
                 onClick={() => handleAnalyze(analyzedInputText || messageText || linkInput)}
                 className="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer"
               >
-                Dobara try karein
+                {t.btnRetry}
               </button>
             </div>
           )}
@@ -588,15 +605,15 @@ export default function MessageChecker() {
                     </span>
                     {!isLowWithNoSignals && result.signals.length > 0 && (
                       <span className="text-xs text-slate-500 font-mono">
-                        {result.signals.length} threat signal(s) analyzed
+                        {t.threatSignalsAnalyzed.replace("{count}", String(result.signals.length))}
                       </span>
                     )}
                   </div>
                   <h3 className="font-heading text-2xl font-bold text-slate-900 dark:text-white">
-                    {riskStyles[result.risk_level].label}
+                    {riskTitleMap[result.risk_level]}
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-400 font-sans">
-                    Derived exclusively from verifiable linguistic markers and threat patterns present in the inspected text.
+                    {t.resultDerivedNote}
                   </p>
                 </div>
 
@@ -612,13 +629,13 @@ export default function MessageChecker() {
                   <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <h4 className="font-heading text-sm font-bold text-amber-900 dark:text-amber-100">
-                      Link Inspection Notice
+                      {t.linkLowNoticeTitle}
                     </h4>
                     <p className="text-xs text-amber-800 dark:text-amber-200 mt-0.5 leading-relaxed font-sans font-medium">
-                      No known red flags found. This does not guarantee the link is safe.
+                      {t.linkLowNoticeText}
                     </p>
                     <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">
-                      Fraudsters frequently register brand-new domains. Always ensure you know the sender before opening unfamiliar URLs.
+                      {t.linkLowNoticeSub}
                     </p>
                   </div>
                 </div>
@@ -630,40 +647,43 @@ export default function MessageChecker() {
                   <ShieldCheck className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" />
                   <div>
                     <h4 className="font-heading text-sm font-bold text-[#16A34A]">
-                      Clean Message (No Red Flags Found)
+                      {t.cleanMessageTitle}
                     </h4>
                     <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed font-sans">
-                      Is message mein koi phishing link, payment demand, authority arrest threat, ya OTP maangne ke signals detect nahi hue hain.
+                      {t.cleanMessageDesc}
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* Signal Chips (Only when signals exist) */}
+              {/* Signal Chips (Only when signals exist) - displayed with localized labels */}
               {result.signals.length > 0 && (
                 <div className="mb-5">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block mb-2">
-                    Observed Red Flags:
+                    {t.observedRedFlags}
                   </span>
                   <div className="flex flex-wrap gap-2">
-                    {result.signals.map((sig) => (
-                      <span
-                        key={sig}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium ${
-                          isDark
-                            ? "bg-[#0B1230] border-slate-700 text-white"
-                            : "bg-white border-amber-900/15 text-slate-800 shadow-sm"
-                        }`}
-                      >
-                        <AlertTriangle className="w-3.5 h-3.5 text-[#F97316]" />
-                        {sig}
-                      </span>
-                    ))}
+                    {result.signals.map((sig) => {
+                      const chipLabel = result.signal_labels?.[sig] ?? sig;
+                      return (
+                        <span
+                          key={sig}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium ${
+                            isDark
+                              ? "bg-[#0B1230] border-slate-700 text-white"
+                              : "bg-white border-amber-900/15 text-slate-800 shadow-sm"
+                          }`}
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#F97316]" />
+                          {chipLabel}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Evidence Highlight in User's Text */}
+              {/* Evidence Highlight in User's Text (keeps original English signal keys) */}
               <div className="mb-5">
                 <EvidenceHighlight text={analyzedInputText || messageText || linkInput} signals={result.signals} />
               </div>
@@ -677,7 +697,7 @@ export default function MessageChecker() {
                 }`}
               >
                 <span className="text-xs font-bold uppercase tracking-wider text-[#2563EB] block mb-1">
-                  Agent Explanation:
+                  {t.agentExplanation}
                 </span>
                 <p className="text-sm leading-relaxed font-sans">{result.explanation}</p>
               </div>
@@ -685,14 +705,16 @@ export default function MessageChecker() {
               {/* Safe Actions */}
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#16A34A] block mb-2">
-                  Recommended Safe Actions:
+                  {t.recommendedSafeActions}
                 </span>
                 <ul className="space-y-2">
                   {result.safe_actions.map((action, i) => (
                     <li key={action} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       <CheckCircle className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
                       <span>
-                        <strong className="text-slate-900 dark:text-white font-medium">Step {i + 1}: </strong>
+                        <strong className="text-slate-900 dark:text-white font-medium">
+                          {t.stepPrefix} {i + 1}:{" "}
+                        </strong>
                         {action}
                       </span>
                     </li>
@@ -706,7 +728,7 @@ export default function MessageChecker() {
           )}
         </div>
 
-        {/* Existing WhatHappened Component */}
+        {/* WhatHappened Incident Response Guide */}
         {result && <WhatHappened />}
       </div>
     </section>

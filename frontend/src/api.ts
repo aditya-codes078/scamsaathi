@@ -13,6 +13,30 @@ interface DetectedSignal {
   weight: number;
 }
 
+export const HINDI_SIGNAL_LABELS: Record<string, string> = {
+  "Urgency / Immediate pressure tactics": "तात्कालिकता / जल्दबाज़ी का दबाव",
+  "Request for OTP, PIN, CVV, or confidential password": "OTP, PIN या गोपनीय पासवर्ड की मांग",
+  "Fake KYC or account suspension threat": "फर्जी KYC या खाता बंद करने की धमकी",
+  "Upfront payment / registration fee demand": "अग्रिम भुगतान या रजिस्ट्रेशन फीस की मांग",
+  "Prize, lottery, or unrealistic reward lure": "लॉटरी या फर्जी ईनाम का लालच",
+  "Job or internship offer bait": "फर्जी नौकरी या इंटर्नशिप का झांसा",
+  "Authority impersonation / Arrest threat": "पुलिस या अधिकारी बनकर डिजिटल अरेस्ट की धमकी",
+  "Coercive secrecy / Isolation demand": "बात छुपाने या किसी को न बताने का दबाव",
+  "Suspicious shortened link or high-risk domain": "संदिग्ध छोटा लिंक या खतरनाक डोमेन",
+};
+
+export const ENGLISH_SIGNAL_LABELS: Record<string, string> = {
+  "Urgency / Immediate pressure tactics": "Urgency / Immediate pressure tactics",
+  "Request for OTP, PIN, CVV, or confidential password": "Request for OTP, PIN, CVV, or confidential password",
+  "Fake KYC or account suspension threat": "Fake KYC or account suspension threat",
+  "Upfront payment / registration fee demand": "Upfront payment / registration fee demand",
+  "Prize, lottery, or unrealistic reward lure": "Prize, lottery, or unrealistic reward lure",
+  "Job or internship offer bait": "Job or internship offer bait",
+  "Authority impersonation / Arrest threat": "Authority impersonation / Arrest threat",
+  "Coercive secrecy / Isolation demand": "Coercive secrecy / Isolation demand",
+  "Suspicious shortened link or high-risk domain": "Suspicious shortened link or high-risk domain",
+};
+
 /**
  * Checks whether an OTP mention is actually a safety warning (e.g. "do not share your OTP")
  * so legitimate bank warnings are not falsely flagged as credential requests.
@@ -29,17 +53,22 @@ function isOtpSafetyWarning(text: string): boolean {
 /**
  * Rule-based analyzer mirroring what an intelligent cyber-safety backend would do.
  * Extracts signals exclusively from evidence actually present in the text (English, Hindi, Hinglish).
+ * Supports English and Hindi response outputs.
  */
-export function runRuleBasedAnalyzer(text: string): AnalysisResult {
+export function runRuleBasedAnalyzer(text: string, lang: string = "en"): AnalysisResult {
   const clean = text.trim();
+  const isHi = lang === "hi";
 
   // Greetings, empty, or short harmless messages must always return Low with no signals
   if (!clean) {
     return {
       risk_level: "Low",
       signals: [],
-      explanation: "Koi sandeh-janak message text nahi mila. Please message paste karein.",
-      safe_actions: ["Kisi action ki zaroorat nahi hai."],
+      signal_labels: isHi ? HINDI_SIGNAL_LABELS : ENGLISH_SIGNAL_LABELS,
+      explanation: isHi
+        ? "कोई संदेश टेक्स्ट नहीं मिला। कृपया जांचने के लिए टेक्स्ट पेस्ट करें।"
+        : "No suspicious message text provided. Please paste message content to analyze.",
+      safe_actions: [isHi ? "किसी कार्रवाई की आवश्यकता नहीं है।" : "No action required."],
     };
   }
 
@@ -56,12 +85,15 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
   }
 
   // 2. OTP / PIN / CVV / Password Request (Weight: 6 - High impact)
-  // Ensure we DO NOT flag awareness text like "do not share your OTP"
   const hasOtpKeywords = /\b(otp|one time password|pin|cvv|password|passcode)\b/i.test(clean);
   if (hasOtpKeywords && !isOtpSafetyWarning(clean)) {
     const isRequesting =
-      /\b(share|send|enter|provide|tell|submit|verify|bhejo|bhejein|daalein|batayein)\b.*?\b(otp|one time password|pin|cvv|password|passcode)\b/i.test(clean) ||
-      /\b(otp|one time password|pin|cvv|password)\b.*?\b(share|send|enter|provide|tell|bhejo|bhejein|daalein|batayein|verify|required)\b/i.test(clean) ||
+      /\b(share|send|enter|provide|tell|submit|verify|bhejo|bhejein|daalein|batayein)\b.*?\b(otp|one time password|pin|cvv|password|passcode)\b/i.test(
+        clean
+      ) ||
+      /\b(otp|one time password|pin|cvv|password)\b.*?\b(share|send|enter|provide|tell|bhejo|bhejein|daalein|batayein|verify|required)\b/i.test(
+        clean
+      ) ||
       /\b(enter your otp|share your otp|send your otp|give your otp|verify with otp)\b/i.test(clean);
 
     if (isRequesting) {
@@ -75,7 +107,9 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
   // 3. Fake KYC or Bank Threat (Weight: 4)
   const kycPattern =
     /\b(kyc|pan card|pan update|aadhaar link|biometric update)\b/i.test(clean) ||
-    /\b(account|khata|sim|card|connection)\b.*?\b(blocked|block|suspended|suspend|deactivated|closed|frozen|locked|band)\b/i.test(clean) ||
+    /\b(account|khata|sim|card|connection)\b.*?\b(blocked|block|suspended|suspend|deactivated|closed|frozen|locked|band)\b/i.test(
+      clean
+    ) ||
     /\b(blocked|block|suspended|suspend|frozen|band).*?\b(account|khata|sim|card|connection)\b/i.test(clean) ||
     /\b(sbi yono|yono|electricity bill).*?\b(blocked|cut|disconnected|update|pending)\b/i.test(clean) ||
     /\b(electricity (will be|connection will be)? (disconnected|cut off|power off))\b/i.test(clean);
@@ -89,7 +123,9 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 
   // 4. Payment Demand / Processing fee (Weight: 3)
   const paymentPattern =
-    /\b(registration fee|processing fee|verification fee|security deposit|refundable fee|activation charge|courier charge|delivery charge)\b/i.test(clean) ||
+    /\b(registration fee|processing fee|verification fee|security deposit|refundable fee|activation charge|courier charge|delivery charge)\b/i.test(
+      clean
+    ) ||
     /\b(pay|send|transfer|deposit|bhejo|bhejein)\b.*?(rs\.?|inr|₹|\d+\s*rupees)/i.test(clean) ||
     /\b(pay|send|transfer).*?\b(via upi|scanner|qr code|gpay|phonepe|paytm)\b/i.test(clean) ||
     /\b(refund|cashback).*?(claim|receive|ke liye)\b.*?(pay|fee|charge|transfer)/i.test(clean);
@@ -103,8 +139,9 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 
   // 5. Prize or Lottery Lure (Weight: 3)
   const prizePattern =
-    /\b(won|winner|winning|selected for|jeeta|lottery)\b.*?\b(prize|lottery|lucky draw|crore|lakh|cash reward|kbc|gift voucher|car)\b/i.test(clean) ||
-    /\b(claim your (prize|reward|gift|lottery))\b/i.test(clean);
+    /\b(won|winner|winning|selected for|jeeta|lottery)\b.*?\b(prize|lottery|lucky draw|crore|lakh|cash reward|kbc|gift voucher|car)\b/i.test(
+      clean
+    ) || /\b(claim your (prize|reward|gift|lottery))\b/i.test(clean);
 
   if (prizePattern) {
     detected.push({
@@ -115,7 +152,9 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 
   // 6. Job / Internship Bait (Weight: 2)
   const jobPattern =
-    /\b(remote internship|internship offer|part[- ]time job|wfh job|work from home job|data entry job|earn money online|earn \d+ daily|daily income)\b/i.test(clean) ||
+    /\b(remote internship|internship offer|part[- ]time job|wfh job|work from home job|data entry job|earn money online|earn \d+ daily|daily income)\b/i.test(
+      clean
+    ) ||
     /\b(selected for (remote )?(internship|job|role))\b/i.test(clean) ||
     /\b(stipend:?\s*(₹|rs\.?|inr))\b/i.test(clean);
 
@@ -128,8 +167,12 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 
   // 7. Authority Threat (Weight: 6 - High impact)
   const authorityPattern =
-    /\b(police|cbi|crime branch|customs|enforcement directorate|ed department|interpol|narcotics|ncb)\b/i.test(clean) ||
-    /\b(digital arrest|under arrest|arrest warrant|court notice|legal action|fir filed|non-bailable warrant|police complaint)\b/i.test(clean) ||
+    /\b(police|cbi|crime branch|customs|enforcement directorate|ed department|interpol|narcotics|ncb)\b/i.test(
+      clean
+    ) ||
+    /\b(digital arrest|under arrest|arrest warrant|court notice|legal action|fir filed|non-bailable warrant|police complaint)\b/i.test(
+      clean
+    ) ||
     /\b(jail|chalaan|penal code|ipc section)\b/i.test(clean);
 
   if (authorityPattern) {
@@ -141,7 +184,9 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 
   // 8. Secrecy / Isolation Demand (Weight: 3)
   const secrecyPattern =
-    /\b(don't tell anyone|do not tell anyone|kisi ko (bhi )?(mat|na) batana|keep this secret|keep it secret|strictly confidential|confidential call|do not inform family|stay in room)\b/i.test(clean);
+    /\b(don't tell anyone|do not tell anyone|kisi ko (bhi )?(mat|na) batana|keep this secret|keep it secret|strictly confidential|confidential call|do not inform family|stay in room)\b/i.test(
+      clean
+    );
 
   if (secrecyPattern) {
     detected.push({
@@ -169,12 +214,19 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
     return {
       risk_level: "Low",
       signals: [],
-      explanation:
-        "Koi bada red flag nahi mila, par fir bhi savdhaan rahein. Is message mein koi known phishing, credential harvesting ya financial fraud patterns detect nahi hue hain.",
-      safe_actions: [
-        "Kisi emergency containment ya reporting ki zaroorat nahi hai.",
-        "Anjaan vyakti se baat karte waqt bina official verification personal details share na karein.",
-      ],
+      signal_labels: isHi ? HINDI_SIGNAL_LABELS : ENGLISH_SIGNAL_LABELS,
+      explanation: isHi
+        ? "कोई बड़ा खतरा नहीं मिला, पर फिर भी सावधान रहें। इस संदेश में कोई ज्ञात फिशिंग, क्रेडेंशियल चोरी या वित्तीय धोखाधड़ी के पैटर्न नहीं मिले हैं।"
+        : "No major red flags found, but remain cautious. No known phishing, credential harvesting, or financial fraud patterns were detected in this message.",
+      safe_actions: isHi
+        ? [
+            "किसी आपातकालीन कदम या रिपोर्टिंग की आवश्यकता नहीं है।",
+            "अपरिचित व्यक्ति से बातचीत करते समय बिना आधिकारिक पुष्टि व्यक्तिगत जानकारी साझा न करें।",
+          ]
+        : [
+            "No emergency containment or reporting required.",
+            "Never share personal or banking details with unverified contacts.",
+          ],
     };
   }
 
@@ -197,61 +249,115 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
 
   // Generate contextual explanation matching the detected evidence
   const explanationParts: string[] = [];
-  if (detected.some((s) => s.name.includes("OTP"))) {
-    explanationParts.push(
-      "Message mein confidential credentials (OTP/PIN/Password) share karne ki demand ki gayi hai. Banks ya legitimate services kabhi bhi aise credentials SMS ya call par nahi maangte."
-    );
-  }
-  if (detected.some((s) => s.name.includes("Arrest"))) {
-    explanationParts.push(
-      "Police, CBI ya customs ban kar 'digital arrest' ya FIR ki dhamki di ja rahi hai. Asli law enforcement agencies kabhi WhatsApp ya video call par arrest nahi karti."
-    );
-  }
-  if (detected.some((s) => s.name.includes("KYC"))) {
-    explanationParts.push(
-      "Bank account ya connection block hone ka dar dikhaya gaya hai taaki aap ghabrahat mein unverified action lein."
-    );
-  }
-  if (detected.some((s) => s.name.includes("payment"))) {
-    explanationParts.push(
-      "Upfront registration fee ya processing charge maangna job/service scams ka classic indicator hai."
-    );
-  }
-  if (detected.some((s) => s.name.includes("shortened link"))) {
-    explanationParts.push(
-      "Shortened link (jaise bit.ly) ka istemaal actual malicious website ko chupane ke liye kiya gaya hai."
-    );
-  }
-  if (explanationParts.length === 0) {
-    explanationParts.push(
-      "Message mein psychological pressure aur anjaan source se action lene ki baat kahi gayi hai."
-    );
+
+  if (isHi) {
+    if (detected.some((s) => s.name.includes("OTP"))) {
+      explanationParts.push(
+        "संदेश में गोपनीय क्रेडेंशियल्स (OTP/PIN/पासवर्ड) साझा करने की मांग की गई है। बैंक या वैध संस्थाएं कभी भी ऐसे क्रेडेंशियल्स SMS या कॉल पर नहीं मांगतीं।"
+      );
+    }
+    if (detected.some((s) => s.name.includes("Arrest"))) {
+      explanationParts.push(
+        "पुलिस, CBI या कस्टम्स बनकर 'डिजिटल अरेस्ट' या FIR की धमकी दी जा रही है। असली जांच एजेंसियां कभी WhatsApp या वीडियो कॉल पर अरेस्ट नहीं करतीं।"
+      );
+    }
+    if (detected.some((s) => s.name.includes("KYC"))) {
+      explanationParts.push(
+        "बैंक खाता या कनेक्शन ब्लॉक होने का झूठा डर दिखाया गया है ताकि आप घबराहट में बिना सोचे कदम उठाएं।"
+      );
+    }
+    if (detected.some((s) => s.name.includes("payment"))) {
+      explanationParts.push(
+        "एडवांस रजिस्ट्रेशन फीस या प्रोसेसिंग चार्ज मांगना जॉब और सर्विस स्कैम्स का मुख्य लक्षण है।"
+      );
+    }
+    if (detected.some((s) => s.name.includes("shortened link"))) {
+      explanationParts.push(
+        "संदिग्ध छोटे लिंक (जैसे bit.ly) का इस्तेमाल वास्तविक दुर्भावनापूर्ण वेबसाइट को छुपाने के लिए किया गया है।"
+      );
+    }
+    if (explanationParts.length === 0) {
+      explanationParts.push(
+        "संदेश में मनोवैज्ञानिक दबाव और अनजान स्रोत से तुरंत कार्रवाई करने की बात कही गई है।"
+      );
+    }
+  } else {
+    if (detected.some((s) => s.name.includes("OTP"))) {
+      explanationParts.push(
+        "The message attempts to harvest confidential credentials (OTP/PIN/Password). Banks and legitimate services never request these over SMS or calls."
+      );
+    }
+    if (detected.some((s) => s.name.includes("Arrest"))) {
+      explanationParts.push(
+        "The sender impersonates police, CBI, or customs with threats of 'digital arrest' or legal action. Law enforcement agencies never arrest citizens over video calls."
+      );
+    }
+    if (detected.some((s) => s.name.includes("KYC"))) {
+      explanationParts.push(
+        "A false threat of bank account or service suspension is used to induce panic and force hasty action."
+      );
+    }
+    if (detected.some((s) => s.name.includes("payment"))) {
+      explanationParts.push(
+        "Demanding upfront registration or verification fees is a classic employment and service fraud tactic."
+      );
+    }
+    if (detected.some((s) => s.name.includes("shortened link"))) {
+      explanationParts.push(
+        "A shortened or suspicious link (e.g. bit.ly) is used to obscure the actual malicious website."
+      );
+    }
+    if (explanationParts.length === 0) {
+      explanationParts.push(
+        "The message exerts psychological urgency and prompts unverified action from an unfamiliar source."
+      );
+    }
   }
 
   const explanation = explanationParts.join(" ");
 
   // Contextual safe actions based on detected signals
   const safe_actions: string[] = [];
-  if (detected.some((s) => s.name.includes("OTP"))) {
-    safe_actions.push("Apna OTP, PIN ya netbanking password kisi ke saath share na karein.");
+  if (isHi) {
+    if (detected.some((s) => s.name.includes("OTP"))) {
+      safe_actions.push("अपना OTP, PIN या नेटबैंकिंग पासवर्ड किसी के साथ साझा न करें।");
+    }
+    if (detected.some((s) => s.name.includes("link"))) {
+      safe_actions.push("संदेश में दिए गए लिंक पर बिल्कुल क्लिक न करें।");
+    }
+    if (detected.some((s) => s.name.includes("payment"))) {
+      safe_actions.push("किसी भी अनजान UPI ID या QR कोड पर पैसे ट्रांसफर न करें।");
+    }
+    if (detected.some((s) => s.name.includes("KYC"))) {
+      safe_actions.push("बैंक की आधिकारिक ऐप या शाखा में जाकर अपने खाते की स्थिति जांचें।");
+    }
+    if (detected.some((s) => s.name.includes("Arrest"))) {
+      safe_actions.push("घबराएं नहीं; तुरंत कॉल काटें और नजदीकी पुलिस स्टेशन या 1930 पर संपर्क करें।");
+    }
+    safe_actions.push("संदेह होने पर राष्ट्रीय साइबर हेल्पलाइन 1930 पर कॉल करें।");
+  } else {
+    if (detected.some((s) => s.name.includes("OTP"))) {
+      safe_actions.push("Never disclose your OTP, PIN, CVV, or passwords to anyone.");
+    }
+    if (detected.some((s) => s.name.includes("link"))) {
+      safe_actions.push("Do not click on links provided in unverified messages.");
+    }
+    if (detected.some((s) => s.name.includes("payment"))) {
+      safe_actions.push("Do not transfer money to unfamiliar UPI IDs, scanners, or accounts.");
+    }
+    if (detected.some((s) => s.name.includes("KYC"))) {
+      safe_actions.push("Verify your account status directly via official banking apps or branch visits.");
+    }
+    if (detected.some((s) => s.name.includes("Arrest"))) {
+      safe_actions.push("Stay calm; hang up immediately and report to local police or the 1930 helpline.");
+    }
+    safe_actions.push("In case of doubt, report suspected cyber fraud to National Helpline 1930.");
   }
-  if (detected.some((s) => s.name.includes("link"))) {
-    safe_actions.push("Message mein diye link par bilkul click na karein.");
-  }
-  if (detected.some((s) => s.name.includes("payment"))) {
-    safe_actions.push("Kisi bhi UPI ID ya QR code par paise transfer na karein.");
-  }
-  if (detected.some((s) => s.name.includes("KYC"))) {
-    safe_actions.push("Bank ki official netbanking app ya branch mein jaakar account status check karein.");
-  }
-  if (detected.some((s) => s.name.includes("Arrest"))) {
-    safe_actions.push("Ghabrayein nahi; turant call disconnect karein aur local police station se sampark karein.");
-  }
-  safe_actions.push("Sandeh hone par National Cyber Fraud Helpline 1930 par call karein.");
 
   return {
     risk_level,
     signals: signalNames,
+    signal_labels: isHi ? HINDI_SIGNAL_LABELS : ENGLISH_SIGNAL_LABELS,
     explanation,
     safe_actions,
   };
@@ -261,14 +367,14 @@ export function runRuleBasedAnalyzer(text: string): AnalysisResult {
  * Analyzes incoming message text via the backend API (or the offline analyzer in mock mode).
  * Contract:
  * POST {API_URL}/analyze
- * Request: { "text": string }
- * Response: { "risk_level": "Low" | "Caution" | "High" | "Critical", "signals": string[], "explanation": string, "safe_actions": string[] }
+ * Request: { "text": string, "lang": string }
+ * Response: { "risk_level": "Low" | "Caution" | "High" | "Critical", "signals": string[], "explanation": string, "safe_actions": string[], "signal_labels"?: Record<string, string> }
  */
-export async function analyze(text: string): Promise<AnalysisResult> {
+export async function analyze(text: string, lang: string = "en"): Promise<AnalysisResult> {
   if (USE_MOCK) {
     // Simulate realistic processing delay for smooth UI transition
     await new Promise((r) => setTimeout(r, 600));
-    return runRuleBasedAnalyzer(text);
+    return runRuleBasedAnalyzer(text, lang);
   }
 
   // Production/Dev API connection (VITE_API_URL on deploy, localhost:8000 in dev)
@@ -277,11 +383,11 @@ export async function analyze(text: string): Promise<AnalysisResult> {
     res = await fetch(`${API_URL}/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, lang }),
     });
   } catch {
     // Backend unreachable (offline or server asleep): fall back to the local rules
-    return runRuleBasedAnalyzer(text);
+    return runRuleBasedAnalyzer(text, lang);
   }
 
   if (!res.ok) {

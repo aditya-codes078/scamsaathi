@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Share2, Check, AlertTriangle } from "lucide-react";
 import type { RiskLevel } from "../types";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 interface ShareableSafetyCardProps {
   riskLevel: RiskLevel;
@@ -10,15 +11,16 @@ interface ShareableSafetyCardProps {
 
 export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSafetyCardProps) {
   const { isDark } = useTheme();
+  const { t, lang } = useLanguage();
   const [sharing, setSharing] = useState(false);
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const riskColors: Record<RiskLevel, { text: string; bg: string; label: string }> = {
-    Low: { text: "#16A34A", bg: "#DCFCE7", label: "LOW RISK · NO IMMINENT THREAT" },
-    Caution: { text: "#F59E0B", bg: "#FEF3C7", label: "CAUTION · SUSPICIOUS PATTERNS" },
-    High: { text: "#F97316", bg: "#FFEDD5", label: "HIGH RISK · DECEPTION DETECTED" },
-    Critical: { text: "#E11D48", bg: "#FFE4E6", label: "CRITICAL · URGENT FRAUD TRAP" },
+    Low: { text: "#16A34A", bg: "#DCFCE7", label: lang === "hi" ? "कम जोखिम · सामान्य संदेश" : "LOW RISK · NO IMMINENT THREAT" },
+    Caution: { text: "#F59E0B", bg: "#FEF3C7", label: lang === "hi" ? "चेतावनी · असत्यापित संकेत" : "CAUTION · SUSPICIOUS PATTERNS" },
+    High: { text: "#F97316", bg: "#FFEDD5", label: lang === "hi" ? "उच्च जोखिम · धोखाधड़ी के लक्षण" : "HIGH RISK · DECEPTION DETECTED" },
+    Critical: { text: "#E11D48", bg: "#FFE4E6", label: lang === "hi" ? "गंभीर जोखिम · खतरनाक फिशिंग हमला" : "CRITICAL · URGENT FRAUD TRAP" },
   };
 
   /**
@@ -50,15 +52,15 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
     ctx.fillStyle = "#2563EB";
     ctx.fillRect(90, 90, 80, 80);
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 44px 'Space Grotesk', sans-serif";
+    ctx.font = "bold 44px sans-serif";
     ctx.fillText("🛡️", 105, 148);
 
     ctx.fillStyle = "#0F172A";
-    ctx.font = "bold 46px 'Space Grotesk', sans-serif";
+    ctx.font = "bold 46px sans-serif";
     ctx.fillText("ScamSaathi", 195, 135);
 
     ctx.fillStyle = "#64748B";
-    ctx.font = "600 22px 'Inter', sans-serif";
+    ctx.font = "600 22px sans-serif";
     ctx.fillText("CYBER-SAFETY ADVISORY · HACKINDIA 2026", 195, 168);
 
     // Horizontal divider
@@ -80,17 +82,17 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
     ctx.stroke();
 
     ctx.fillStyle = style.text;
-    ctx.font = "bold 32px 'Space Grotesk', sans-serif";
+    ctx.font = "bold 32px sans-serif";
     ctx.fillText(style.label, 130, 325);
 
     // 4. Detected Red Flags Section
     ctx.fillStyle = "#0F172A";
-    ctx.font = "bold 30px 'Space Grotesk', sans-serif";
-    ctx.fillText("OBSERVED THREAT RED FLAGS:", 90, 440);
+    ctx.font = "bold 30px sans-serif";
+    ctx.fillText(lang === "hi" ? "पहचाने गए खतरे (RED FLAGS):" : "OBSERVED THREAT RED FLAGS:", 90, 440);
 
-    const displaySignals = signals.length > 0 ? signals.slice(0, 4) : ["No red flag signals detected in this message."];
+    const displaySignals = signals.length > 0 ? signals.slice(0, 4) : [lang === "hi" ? "इस संदेश में कोई रेड फ्लैग नहीं मिला।" : "No red flag signals detected in this message."];
     let y = 495;
-    ctx.font = "500 26px 'Inter', sans-serif";
+    ctx.font = "500 26px sans-serif";
     ctx.fillStyle = "#334155";
 
     displaySignals.forEach((sig) => {
@@ -111,20 +113,20 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
     ctx.fill();
 
     ctx.fillStyle = "#F8FAFC";
-    ctx.font = "bold 28px 'Space Grotesk', sans-serif";
-    ctx.fillText("🚨 IN INDIA: REPORT FINANCIAL CYBER FRAUD IMMEDIATELY", 130, 775);
+    ctx.font = "bold 28px sans-serif";
+    ctx.fillText(lang === "hi" ? "🚨 भारत में वित्तीय साइबर अपराध की तुरंत रिपोर्ट करें:" : "🚨 IN INDIA: REPORT FINANCIAL CYBER FRAUD IMMEDIATELY", 130, 775);
 
     ctx.fillStyle = "#38BDF8";
-    ctx.font = "bold 36px 'Inter', sans-serif";
+    ctx.font = "bold 36px sans-serif";
     ctx.fillText("📞 Call Helpline: 1930", 130, 835);
 
     ctx.fillStyle = "#94A3B8";
-    ctx.font = "600 24px 'Inter', sans-serif";
+    ctx.font = "600 24px sans-serif";
     ctx.fillText("Official Portal: cybercrime.gov.in", 130, 875);
 
     // 6. Footer Disclaimer
     ctx.fillStyle = "#64748B";
-    ctx.font = "500 20px 'Inter', sans-serif";
+    ctx.font = "500 20px sans-serif";
     ctx.fillText("Never share OTP, PIN, passwords or bank details. Built by Team Build Beyond.", 90, 960);
     ctx.fillText("ScamSaathi explains evidence to guide safe family decisions.", 90, 990);
 
@@ -177,7 +179,7 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
     <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
         <AlertTriangle className="w-4 h-4 text-[#F59E0B]" />
-        <span>Card hides your private text & only shares verified evidence.</span>
+        <span>{t.sharePrivacyNote}</span>
       </div>
 
       <button
@@ -194,12 +196,12 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
         {copied ? (
           <>
             <Check className="w-4 h-4 text-emerald-400" />
-            <span>Card Saved / Shared!</span>
+            <span>{t.shareSaved}</span>
           </>
         ) : (
           <>
             <Share2 className="w-4 h-4" />
-            <span>{sharing ? "Generating Card..." : "Share with family"}</span>
+            <span>{sharing ? t.shareGenerating : t.btnShareFamily}</span>
           </>
         )}
       </button>

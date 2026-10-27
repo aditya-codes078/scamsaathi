@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { RiskLevel } from "../types";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 interface RiskDialProps {
   riskLevel: RiskLevel;
@@ -15,6 +16,7 @@ const TARGET_ANGLES: Record<RiskLevel, number> = {
 
 export default function RiskDial({ riskLevel }: RiskDialProps) {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
   const [needleAngle, setNeedleAngle] = useState(TARGET_ANGLES[riskLevel]);
 
   useEffect(() => {
@@ -30,25 +32,25 @@ export default function RiskDial({ riskLevel }: RiskDialProps) {
       text: "#16A34A",
       bg: isDark ? "rgba(22, 163, 74, 0.15)" : "#DCFCE7",
       border: "#16A34A",
-      label: "Low Risk",
+      label: t.riskTitleLow.split(" · ")[0],
     },
     Caution: {
       text: "#F59E0B",
       bg: isDark ? "rgba(245, 158, 11, 0.15)" : "#FEF3C7",
       border: "#F59E0B",
-      label: "Caution",
+      label: t.riskTitleCaution.split(" · ")[0],
     },
     High: {
       text: "#F97316",
       bg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFEDD5",
       border: "#F97316",
-      label: "High Risk",
+      label: t.riskTitleHigh.split(" · ")[0],
     },
     Critical: {
       text: "#E11D48",
       bg: isDark ? "rgba(225, 29, 72, 0.15)" : "#FFE4E6",
       border: "#E11D48",
-      label: "Critical Threat",
+      label: t.riskTitleCritical.split(" · ")[0],
     },
   };
 
@@ -63,7 +65,7 @@ export default function RiskDial({ riskLevel }: RiskDialProps) {
       }`}
     >
       <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-        3D Risk Assessment Dial
+        {t.riskDialTitle}
       </div>
 
       {/* SVG Semi-Circle Gauge */}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload, X, RefreshCw, AlertCircle, Sparkles, Check, Image as ImageIcon, StopCircle } from "lucide-react";
+import { useLanguage } from "../i18n";
 
 interface ScreenshotModeProps {
   onAnalyzeText: (text: string) => void;
@@ -64,6 +65,7 @@ function downscaleImage(file: File, maxDim = 1600): Promise<{ blob: Blob; dataUr
 }
 
 export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: ScreenshotModeProps) {
+  const { t } = useLanguage();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [fileName, setFileName] = useState<string>("");
@@ -99,6 +101,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
 
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function processFile(file: File) {
@@ -107,14 +110,14 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
     // Validate type: PNG/JPG/WEBP only
     const validTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
     if (!validTypes.includes(file.type.toLowerCase())) {
-      setErrorMessage("Please upload PNG, JPG, or WEBP only.");
+      setErrorMessage(t.errFileType);
       return;
     }
 
     // Validate size: max 5 MB
     const maxBytes = 5 * 1024 * 1024;
     if (file.size > maxBytes) {
-      setErrorMessage("File size 5MB se zyada hai. Maximum allowed size 5MB hai.");
+      setErrorMessage(t.errFileSize);
       return;
     }
 
@@ -129,7 +132,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
       setExtractedText("");
     } catch (err: unknown) {
       console.error("Image processing error:", err);
-      setErrorMessage("Image process karne mein dikkat aayi. Please dobara try karein.");
+      setErrorMessage(t.errOcrGeneric);
     }
   }
 
@@ -185,7 +188,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
       activeWorkerRef.current = null;
     }
     setOcrLoading(false);
-    setProgressStatus("Scan cancelled by user.");
+    setProgressStatus(t.scanCancelled);
   }
 
   /**
@@ -198,7 +201,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
     setOcrLoading(true);
     setOcrProgress(5);
     setErrorMessage(null);
-    setProgressStatus("Loading on-device OCR engine...");
+    setProgressStatus("Loading OCR models...");
     isCancelledRef.current = false;
 
     try {
@@ -207,7 +210,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
 
       if (isCancelledRef.current) return;
 
-      setProgressStatus("Initializing English + Hindi recognition models...");
+      setProgressStatus("Initializing English + Hindi recognition...");
       setOcrProgress(20);
 
       const worker = await createWorker("eng+hin", undefined, {
@@ -216,7 +219,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
           if (m.status === "recognizing text") {
             const pct = Math.round((m.progress || 0) * 80) + 20;
             setOcrProgress(pct);
-            setProgressStatus(`Extracting text from image (${pct}%)...`);
+            setProgressStatus(`Extracting text (${pct}%)...`);
           }
         },
       });
@@ -239,16 +242,16 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
       const resultText = ret.data.text.trim();
 
       if (!resultText) {
-        setErrorMessage("Koi readable text nahi mila. Please a clearer or higher contrast screenshot upload karein.");
+        setErrorMessage(t.errNoText);
       } else {
         setExtractedText(resultText);
         setOcrProgress(100);
-        setProgressStatus("Text extracted successfully!");
+        setProgressStatus(t.ocrComplete);
       }
     } catch (err: unknown) {
       console.error("OCR recognition failure:", err);
       if (!isCancelledRef.current) {
-        setErrorMessage("OCR scanning failed. Ensure your connection allows initial model loading, or type the text manually.");
+        setErrorMessage(t.errOcrGeneric);
       }
     } finally {
       setOcrLoading(false);
@@ -267,10 +270,10 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
       >
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse" />
-          <strong className="text-slate-900 dark:text-white">Your screenshot stays on your device.</strong>
+          <strong className="text-slate-900 dark:text-white">{t.screenshotPrivacy}</strong>
         </div>
         <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
-          100% Client-Side OCR · Zero Image Uploads
+          {t.screenshotPrivacySub}
         </span>
       </div>
 
@@ -296,7 +299,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
               fileInputRef.current?.click();
             }
           }}
-          aria-label="Upload screenshot or paste image from clipboard"
+          aria-label={t.screenshotDropTitle}
         >
           <input
             ref={fileInputRef}
@@ -314,19 +317,15 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
 
             <div>
               <p className="font-heading font-bold text-base text-slate-900 dark:text-white">
-                Drop your screenshot here, or click to browse
+                {t.screenshotDropTitle}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
-                You can also press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-xs font-mono font-bold">Ctrl + V</kbd> to paste a copied screenshot directly.
+                {t.screenshotPasteHint}
               </p>
             </div>
 
             <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-2 font-sans">
-              <span>PNG, JPG, WEBP</span>
-              <span>·</span>
-              <span>Max 5 MB</span>
-              <span>·</span>
-              <span>Auto-downscaled for speed</span>
+              <span>{t.screenshotMeta}</span>
             </div>
           </div>
         </div>
@@ -350,10 +349,10 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
               type="button"
               onClick={handleClear}
               className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950 dark:hover:text-rose-400 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-              title="Remove screenshot"
+              title={t.screenshotRemove}
             >
               <X className="w-3.5 h-3.5" />
-              <span className="text-[11px] font-semibold">Remove</span>
+              <span className="text-[11px] font-semibold">{t.screenshotRemove}</span>
             </button>
           </div>
 
@@ -370,7 +369,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
           {!extractedText && !ocrLoading && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <p className="text-xs text-slate-500 font-sans">
-                Ready to read text in English and Hindi.
+                {t.screenshotReady}
               </p>
               <button
                 type="button"
@@ -378,7 +377,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-heading font-bold text-xs shadow-md transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Extract Text with OCR</span>
+                <span>{t.btnExtractText}</span>
               </button>
             </div>
           )}
@@ -409,7 +408,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-300 text-rose-600 dark:border-rose-900 dark:text-rose-400 text-xs font-bold hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                 >
                   <StopCircle className="w-3.5 h-3.5" />
-                  <span>Cancel Scan</span>
+                  <span>{t.btnCancelScan}</span>
                 </button>
               </div>
             </div>
@@ -437,11 +436,11 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
               htmlFor="ocr-extracted-textarea"
               className="font-heading font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-white"
             >
-              Text found in screenshot (please check and fix any mistakes)
+              {t.extractedLabel}
             </label>
             <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
               <Check className="w-3.5 h-3.5" />
-              OCR Complete
+              {t.ocrComplete}
             </span>
           </div>
 
@@ -458,10 +457,10 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
             disabled={loading}
           />
 
-          {/* Warning Note required by prompt */}
+          {/* Warning Note */}
           <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>OCR can misread links and numbers. Verify links by eye.</span>
+            <span>{t.ocrWarning}</span>
           </div>
 
           {/* Check this text button */}
@@ -475,10 +474,10 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
               {loading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Evaluating text...</span>
+                  <span>{t.evaluatingText}</span>
                 </>
               ) : (
-                <span>Check this text</span>
+                <span>{t.btnCheckThisText}</span>
               )}
             </button>
           </div>

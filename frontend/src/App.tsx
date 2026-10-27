@@ -1,4 +1,5 @@
 import { ThemeProvider, useTheme } from "./components/ThemeContext";
+import { LanguageProvider } from "./i18n";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import HowItWorks from "./components/HowItWorks";
@@ -19,7 +20,7 @@ function AppContent() {
           : "bg-gradient-to-b from-[#FFF9F0] via-[#FAF6F0] to-[#F4F1FF] text-slate-800"
       }`}
     >
-      {/* 1. Sticky Navbar with Theme Toggle */}
+      {/* 1. Sticky Navbar with Theme & Language Toggles */}
       <Navbar />
 
       {/* Main Single-Page Sections */}
@@ -51,8 +52,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

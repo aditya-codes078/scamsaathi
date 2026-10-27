@@ -1,8 +1,10 @@
 import { PhoneCall, Globe, ShieldAlert, ArrowUpRight } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 export default function SafetyBanner() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <section className="py-10 transition-colors" aria-label="National Cyber Fraud Helplines">
@@ -22,13 +24,16 @@ export default function SafetyBanner() {
               </div>
               <div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-950 text-[#E11D48] border border-rose-200 dark:border-rose-900 text-[11px] font-bold uppercase tracking-wider mb-2">
-                  Emergency National Citizen Advisory
+                  {t.bannerBadge}
                 </div>
                 <h3 className="font-heading text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
-                  In India, report financial cyber fraud: call <span className="text-[#E11D48]">1930</span> or visit <span className="text-[#2563EB]">cybercrime.gov.in</span>
+                  {t.bannerTitlePart1}
+                  <span className="text-[#E11D48]">{t.bannerHelpline}</span>
+                  {t.bannerTitlePart2}
+                  <span className="text-[#2563EB]">{t.bannerPortal}</span>
                 </h3>
                 <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed font-sans">
-                  Act within the <strong className="text-slate-900 dark:text-white">Golden Hour</strong>. Immediate reporting to the National Cyber Crime Helpline (1930) gives banks the critical window to freeze transacted amounts before scammers siphon funds.
+                  {t.bannerDesc}
                 </p>
               </div>
             </div>
@@ -40,7 +45,7 @@ export default function SafetyBanner() {
                 className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#E11D48] hover:bg-rose-700 text-white font-bold text-sm shadow-[0_4px_15px_rgba(225,29,72,0.35)] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-400"
               >
                 <PhoneCall className="w-4 h-4 animate-pulse" />
-                <span>Call 1930 Helpline</span>
+                <span>{t.bannerCallBtn}</span>
               </a>
 
               <a

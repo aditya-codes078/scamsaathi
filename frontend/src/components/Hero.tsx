@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Shield, ArrowRight, Lock, Sparkles, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 interface FloatingBubble {
   id: number;
@@ -12,42 +13,43 @@ interface FloatingBubble {
   positionClass: string;
 }
 
-const FLOATING_BUBBLES: FloatingBubble[] = [
-  {
-    id: 1,
-    snippet: "Win ₹50,000 Cash Prize!",
-    badge: "Prize Scam",
-    badgeColor: "#F59E0B",
-    tagline: "Unsolicited Reward Bait",
-    explanation: "Scammers promise unexpected lottery or prize money to demand advance processing fees or personal bank data.",
-    positionClass: "-top-6 -left-4 sm:-left-12",
-  },
-  {
-    id: 2,
-    snippet: "CBI Digital Arrest Notice",
-    badge: "Authority Threat",
-    badgeColor: "#E11D48",
-    tagline: "Coercive Police Impersonation",
-    explanation: "Law enforcement and CBI never conduct arrests, trials, or asset seizures via WhatsApp or video calls.",
-    positionClass: "top-1/3 -right-4 sm:-right-12",
-  },
-  {
-    id: 3,
-    snippet: "Part-time review ₹3000/day",
-    badge: "Task Scam",
-    badgeColor: "#7C3AED",
-    tagline: "Prepaid Job Trap",
-    explanation: "Victims are lured with easy rating jobs, then trapped into paying deposits for nonexistent commission withdrawals.",
-    positionClass: "-bottom-6 -left-2 sm:-left-8",
-  },
-];
-
 export default function Hero() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [activeBubble, setActiveBubble] = useState<FloatingBubble | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isReducedMotion = useRef<boolean>(false);
+
+  const floatingBubbles: FloatingBubble[] = [
+    {
+      id: 1,
+      snippet: t.bubble1Snippet,
+      badge: t.bubble1Badge,
+      badgeColor: "#F59E0B",
+      tagline: t.bubble1Tagline,
+      explanation: t.bubble1Explanation,
+      positionClass: "-top-6 -left-4 sm:-left-12",
+    },
+    {
+      id: 2,
+      snippet: t.bubble2Snippet,
+      badge: t.bubble2Badge,
+      badgeColor: "#E11D48",
+      tagline: t.bubble2Tagline,
+      explanation: t.bubble2Explanation,
+      positionClass: "top-1/3 -right-4 sm:-right-12",
+    },
+    {
+      id: 3,
+      snippet: t.bubble3Snippet,
+      badge: t.bubble3Badge,
+      badgeColor: "#7C3AED",
+      tagline: t.bubble3Tagline,
+      explanation: t.bubble3Explanation,
+      positionClass: "-bottom-6 -left-2 sm:-left-8",
+    },
+  ];
 
   useEffect(() => {
     isReducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -117,26 +119,24 @@ export default function Hero() {
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
-              <span>HackIndia x KIT 2026</span>
-              <span className="text-slate-400">·</span>
-              <span className="text-[#2563EB] font-bold">Team Build Beyond</span>
+              <span>{t.hackathonTeamBadge}</span>
             </div>
 
-            {/* Main Headline (Space Grotesk, large, honest) */}
+            {/* Main Headline */}
             <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
-              From Suspicion to{" "}
+              {t.heroHeadlinePart1}
               <span className="underline decoration-[#2563EB] decoration-wavy decoration-4 underline-offset-8">
-                Safe Recovery
+                {t.heroHeadlineHighlight}
               </span>
             </h1>
 
             {/* Required one-line subtext */}
             <p className="text-lg sm:text-xl text-slate-700 dark:text-slate-300 font-semibold max-w-2xl mx-auto lg:mx-0 font-sans">
-              Explainable Hindi/English cyber-safety response agent
+              {t.heroSubtext}
             </p>
 
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed font-sans">
-              Digital scams exploit panic and urgency. ScamSaathi breaks down suspicious WhatsApp messages, fake job offers, and bogus bank notices into plain, evidence-backed advice so you can respond safely.
+              {t.heroDescription}
             </p>
 
             {/* Primary Action Buttons */}
@@ -146,7 +146,7 @@ export default function Hero() {
                 onClick={scrollToChecker}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-heading font-bold text-base shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all transform hover:-translate-y-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
               >
-                <span>Check a message</span>
+                <span>{t.heroCtaCheck}</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
 
@@ -158,24 +158,23 @@ export default function Hero() {
                     : "bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 shadow-sm"
                 }`}
               >
-                <span>How it works (5 steps)</span>
+                <span>{t.heroCtaHow}</span>
               </a>
             </div>
 
-            {/* Trust Points with Honesty Fixes */}
+            {/* Trust Points */}
             <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <Lock className="w-4 h-4 text-[#2563EB] shrink-0" />
-                <span>Never asks for OTP or PIN</span>
+                <span>{t.heroTrustNoOtp}</span>
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <Sparkles className="w-4 h-4 text-[#7C3AED] shrink-0" />
-                <span>Hindi & English Breakdown</span>
+                <span>{t.heroTrustBilingual}</span>
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
-                {/* Honesty fix */}
-                <span>Guides you to the 1930 helpline</span>
+                <span>{t.heroTrustHelpline}</span>
               </div>
             </div>
           </div>
@@ -203,7 +202,7 @@ export default function Hero() {
                     <span className="w-8 h-1 bg-slate-700 rounded-full" />
                   </div>
 
-                  {/* Phone Screen: HTML/CSS WhatsApp/SMS Mockup with FICTIONAL BANK "SafeBank" */}
+                  {/* Phone Screen */}
                   <div className="mt-4 w-full h-full rounded-[30px] bg-slate-950 p-3.5 flex flex-col justify-between text-white text-xs border border-slate-800">
                     <div>
                       {/* Top Header in Mockup */}
@@ -213,25 +212,22 @@ export default function Hero() {
                             SB
                           </div>
                           <div>
-                            {/* Fictional Bank Name */}
-                            <span className="font-bold text-xs text-white block">SafeBank Alerts</span>
+                            <span className="font-bold text-xs text-white block">{t.heroPhoneSender}</span>
                             <span className="text-[10px] text-slate-400 font-mono">+91 98XXX XXXXX</span>
                           </div>
                         </div>
-                        {/* Honesty Fix: DEMO badge */}
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                          DEMO
+                          {t.heroPhoneDemoBadge}
                         </span>
                       </div>
 
                       {/* Simulated Suspicious SMS Message Bubble */}
                       <div className="rounded-2xl rounded-tl-sm bg-slate-900 border border-slate-700 p-3 shadow-md space-y-1.5">
                         <p className="text-slate-200 text-xs leading-relaxed font-sans">
-                          "Dear Customer, your <strong className="text-white">SafeBank</strong> account is locked today due to pending KYC. Visit <span className="text-[#60A5FA] underline">http://bit.ly/safebank-kyc</span> and verify OTP immediately to avoid permanent deactivation."
+                          {t.heroPhoneMessage}
                         </p>
                         <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
-                          {/* Honesty Fix: Example message caption */}
-                          <span className="text-amber-400 font-medium">Example message (Illustration)</span>
+                          <span className="text-amber-400 font-medium">{t.heroPhoneExampleCaption}</span>
                           <span>10:42 AM</span>
                         </div>
                       </div>
@@ -239,12 +235,12 @@ export default function Hero() {
                       {/* Detected Evidence Flags inside screen */}
                       <div className="mt-3 space-y-1.5">
                         <div className="flex items-center justify-between p-1.5 rounded-lg bg-rose-950/60 border border-rose-500/30 text-[11px] text-rose-300">
-                          <span>🚩 False Account Urgency</span>
-                          <span className="font-bold">High Risk</span>
+                          <span>{t.heroPhoneFlagUrgency}</span>
+                          <span className="font-bold">High</span>
                         </div>
                         <div className="flex items-center justify-between p-1.5 rounded-lg bg-orange-950/60 border border-orange-500/30 text-[11px] text-orange-300">
-                          <span>🔗 Suspicious Shortener (bit.ly)</span>
-                          <span className="font-bold">Deceptive</span>
+                          <span>{t.heroPhoneFlagLink}</span>
+                          <span className="font-bold">Alert</span>
                         </div>
                       </div>
                     </div>
@@ -265,7 +261,7 @@ export default function Hero() {
                 </div>
 
                 {/* Floating Scam Message Bubbles (Click to open red-flag popover) */}
-                {FLOATING_BUBBLES.map((bubble) => (
+                {floatingBubbles.map((bubble) => (
                   <button
                     key={bubble.id}
                     type="button"
@@ -297,41 +293,46 @@ export default function Hero() {
                       {bubble.snippet}
                     </span>
                     <span className="text-[10px] text-slate-500 font-medium block">
-                      Tap to reveal trap 👆
+                      {t.bubbleTapHint}
                     </span>
                   </button>
                 ))}
               </div>
 
-              {/* Red-flag Popover Modal for clicked bubble */}
+              {/* Popover explaining red flag when a bubble is clicked */}
               {activeBubble && (
-                <div className="absolute inset-x-2 top-10 z-40 p-4 rounded-2xl bg-slate-900 border border-slate-700 text-white shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+                <div className="absolute inset-x-2 bottom-0 z-40 p-4 rounded-3xl bg-slate-900/95 text-white border border-slate-700 shadow-2xl backdrop-blur-md animate-fade-in font-sans">
+                  <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-400" />
-                      <span className="font-heading font-bold text-sm text-white">
-                        {activeBubble.tagline}
-                      </span>
+                      <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+                      <div>
+                        <span className="font-heading font-bold text-sm text-white block">
+                          {activeBubble.tagline}
+                        </span>
+                        <span className="text-[11px] text-amber-300 font-mono">
+                          {activeBubble.snippet}
+                        </span>
+                      </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setActiveBubble(null)}
-                      className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+                      className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                      aria-label="Close explanation"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans mb-3">
+                  <p className="text-xs text-slate-300 leading-relaxed">
                     {activeBubble.explanation}
                   </p>
-                  <div className="flex justify-between items-center text-[10px] text-slate-400">
-                    <span>Pattern: <strong>{activeBubble.badge}</strong></span>
+                  <div className="mt-3 flex justify-end">
                     <button
                       type="button"
                       onClick={() => setActiveBubble(null)}
-                      className="font-bold text-[#2563EB] hover:underline cursor-pointer"
+                      className="px-3 py-1 rounded-lg bg-[#2563EB] text-white text-xs font-bold hover:bg-[#1D4ED8] transition-colors cursor-pointer"
                     >
-                      Close
+                      {t.bubbleCloseBtn}
                     </button>
                   </div>
                 </div>

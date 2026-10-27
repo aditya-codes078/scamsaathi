@@ -1,8 +1,10 @@
 import { Shield, Lock, Heart } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 export default function Footer() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   function scrollToSection(href: string) {
     const el = document.querySelector(href);
@@ -35,7 +37,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm font-sans">
-              Explainable Hindi/English cyber-safety response agent for fraud detection and guided safe recovery.
+              {t.footerMission}
             </p>
           </div>
 
@@ -46,28 +48,28 @@ export default function Footer() {
               onClick={() => scrollToSection("#how-it-works")}
               className="hover:text-[#2563EB] transition-colors cursor-pointer"
             >
-              How it works
+              {t.navHowItWorks}
             </button>
             <button
               type="button"
               onClick={() => scrollToSection("#checker")}
               className="hover:text-[#2563EB] transition-colors cursor-pointer"
             >
-              Check a message
+              {t.navCheckMessage}
             </button>
             <button
               type="button"
               onClick={() => scrollToSection("#why-scamsaathi")}
               className="hover:text-[#2563EB] transition-colors cursor-pointer"
             >
-              Why ScamSaathi
+              {t.navWhyScamSaathi}
             </button>
             <button
               type="button"
               onClick={() => scrollToSection("#team")}
               className="hover:text-[#2563EB] transition-colors cursor-pointer"
             >
-              Team
+              {t.navTeam}
             </button>
             <a
               href="https://cybercrime.gov.in"
@@ -82,20 +84,19 @@ export default function Footer() {
 
         {/* Bottom Disclaimer and Hackathon Credential */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left font-sans text-xs">
-          {/* Required Footer text */}
           <div className="font-heading font-bold text-slate-900 dark:text-white text-sm">
-            HackIndia x KIT | Team Build Beyond
+            {t.footerCredits}
           </div>
 
           <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
             <Lock className="w-3.5 h-3.5 text-[#14B8A6]" />
-            <span>Zero-tracking · No credentials requested · Client-Safe</span>
+            <span>{t.footerPrivacy}</span>
           </div>
 
           <div className="text-[11px] text-slate-400 flex items-center gap-1">
             <span>Built with</span>
             <Heart className="w-3 h-3 text-[#E11D48] fill-[#E11D48]" />
-            <span>for HackIndia x KIT Hackathon 2026</span>
+            <span>{t.footerBuiltWith}</span>
           </div>
         </div>
       </div>

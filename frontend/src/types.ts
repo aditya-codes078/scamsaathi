@@ -5,6 +5,7 @@ export interface AnalysisResult {
   signals: string[];
   explanation: string;
   safe_actions: string[];
+  signal_labels?: Record<string, string>;
 }
 
 export interface ExampleMessage {

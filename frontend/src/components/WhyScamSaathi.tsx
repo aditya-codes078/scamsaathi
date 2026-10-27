@@ -1,5 +1,6 @@
 import { ShieldAlert, Languages, LockKeyhole, Info } from "lucide-react";
 import { useTheme } from "./ThemeContext";
+import { useLanguage } from "../i18n";
 
 interface FeatureCard {
   title: string;
@@ -10,38 +11,36 @@ interface FeatureCard {
   color: string;
 }
 
-const features: FeatureCard[] = [
-  {
-    title: "Not just detection, guided safe response",
-    tagline: "Containment beyond just a warning label",
-    description:
-      "Most checkers simply flag a message as suspicious. ScamSaathi walks you through immediate containment steps if you already clicked a link, downloaded an APK, or sent money.",
-    icon: ShieldAlert,
-    highlight: "Incident Recovery Workflow",
-    color: "#2563EB", // Electric blue
-  },
-  {
-    title: "Hindi/Hinglish explanations",
-    tagline: "Cyber awareness in your mother tongue",
-    description:
-      "Cybersecurity warnings often fail because of confusing technical jargon. ScamSaathi explains threat patterns in everyday Hindi and Hinglish so everyone in the family understands the trap.",
-    icon: Languages,
-    highlight: "Accessible to All Families",
-    color: "#7C3AED", // Violet
-  },
-  {
-    title: "Never asks for OTP, PIN, CVV or passwords",
-    tagline: "Zero-trust privacy by design",
-    description:
-      "True safety begins with strict boundaries. ScamSaathi evaluates only the suspicious message text you paste. We never request your passwords, OTPs, or financial details. No tracking, zero storage.",
-    icon: LockKeyhole,
-    highlight: "Strict Zero-Storage Privacy",
-    color: "#14B8A6", // Teal
-  },
-];
-
 export default function WhyScamSaathi() {
   const { isDark } = useTheme();
+  const { t } = useLanguage();
+
+  const features: FeatureCard[] = [
+    {
+      title: t.whyCard1Title,
+      tagline: t.whyCard1Tagline,
+      description: t.whyCard1Desc,
+      icon: ShieldAlert,
+      highlight: t.whyCard1Badge,
+      color: "#2563EB", // Electric blue
+    },
+    {
+      title: t.whyCard2Title,
+      tagline: t.whyCard2Tagline,
+      description: t.whyCard2Desc,
+      icon: Languages,
+      highlight: t.whyCard2Badge,
+      color: "#7C3AED", // Violet
+    },
+    {
+      title: t.whyCard3Title,
+      tagline: t.whyCard3Tagline,
+      description: t.whyCard3Desc,
+      icon: LockKeyhole,
+      highlight: t.whyCard3Badge,
+      color: "#14B8A6", // Teal
+    },
+  ];
 
   return (
     <section
@@ -54,13 +53,13 @@ export default function WhyScamSaathi() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] mb-3">
-            Core Principles
+            {t.whyBadge}
           </div>
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Why ScamSaathi?
+            {t.whyTitle}
           </h2>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-400 font-sans">
-            Engineered to bridge the critical gap between early fraud suspicion and safe recovery action.
+            {t.whySubtitle}
           </p>
         </div>
 
@@ -137,13 +136,13 @@ export default function WhyScamSaathi() {
             />
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#2563EB]">
-                Principle 01
+                {t.whyStory1Principle}
               </span>
               <h4 className="font-heading font-bold text-base text-slate-900 dark:text-white">
-                Evidence Over Panic
+                {t.whyStory1Title}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                Scammers rely on creating cognitive overload. We unpack observable clues so you can make a rational decision.
+                {t.whyStory1Desc}
               </p>
             </div>
           </div>
@@ -162,33 +161,35 @@ export default function WhyScamSaathi() {
               className="w-full sm:w-44 h-36 object-cover rounded-2xl border border-slate-200 dark:border-slate-800"
             />
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#7C3AED]">
-                Principle 02
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#14B8A6]">
+                {t.whyStory2Principle}
               </span>
               <h4 className="font-heading font-bold text-base text-slate-900 dark:text-white">
-                Incident Containment
+                {t.whyStory2Title}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                Taking action in the first 2 hours after a scam (the golden window) dramatically increases recovery rates.
+                {t.whyStory2Desc}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Evidence & Transparency Notice */}
+        {/* Transparent AI / Agent Disclaimer Box */}
         <div
-          className={`mt-8 rounded-2xl border p-5 flex flex-col sm:flex-row items-center gap-4 text-xs ${
-            isDark
-              ? "bg-[#141B3D] border-slate-700 text-slate-300"
-              : "bg-white border-amber-900/15 text-slate-700 shadow-sm"
+          className={`mt-8 p-5 sm:p-6 rounded-3xl border flex items-start gap-4 ${
+            isDark ? "bg-[#141B3D]/70 border-slate-700" : "bg-white border-amber-900/15 shadow-sm"
           }`}
         >
-          <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB] shrink-0">
+          <div className="p-2.5 rounded-2xl bg-[#2563EB]/10 text-[#2563EB] shrink-0 mt-0.5">
             <Info className="w-5 h-5" />
           </div>
-          <div className="leading-relaxed font-sans">
-            <strong className="text-slate-900 dark:text-white">Transparent AI Assistance: </strong>
-            ScamSaathi does not make blind assertions or claim 100% automated accuracy. Instead, it systematically highlights observable evidence (urgency markers, disguised links, spoofed headers) so you can make a calm, safer decision with confidence.
+          <div>
+            <h4 className="font-heading font-bold text-sm sm:text-base text-slate-900 dark:text-white mb-1">
+              {t.whyTransparencyTitle}
+            </h4>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-sans">
+              {t.whyTransparencyDesc}
+            </p>
           </div>
         </div>
       </div>
