@@ -146,14 +146,14 @@ export default function HowItWorks() {
                       <p className="text-xs font-semibold text-[#2563EB] mb-2 leading-snug">
                         {step.tagline}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
                         {step.frontDetail}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400">
                       <span>{t.stepTapFlip}</span>
-                      <RotateCw className="w-3.5 h-3.5 text-slate-400" />
+                      <RotateCw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     </div>
                   </div>
 
@@ -188,7 +188,7 @@ export default function HowItWorks() {
                       </div>
                     </div>
 
-                    <div className="pt-2 text-center text-[10px] text-slate-400">
+                    <div className="pt-2 text-center text-[10px] text-slate-600 dark:text-slate-400 font-medium">
                       {t.stepTapBack}
                     </div>
                   </div>

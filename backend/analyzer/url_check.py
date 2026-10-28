@@ -43,7 +43,22 @@ def _is_public_host(host: str) -> bool:
         return False
 
 
+_EXPAND_CACHE = {}
+
+
 def expand_short_link(url: str) -> str:
+    """Cached wrapper: the real work is done once per link."""
+    if url in _EXPAND_CACHE:
+        return _EXPAND_CACHE[url]
+    final = _expand_short_link(url)
+    if final != url:  # only remember successful expansions
+        if len(_EXPAND_CACHE) >= 200:
+            _EXPAND_CACHE.pop(next(iter(_EXPAND_CACHE)))
+        _EXPAND_CACHE[url] = final
+    return final
+
+
+def _expand_short_link(url: str) -> str:
     """Follow the redirects of a short link and return the final URL.
     Only response headers are read. If anything looks unsafe or fails,
     the last known URL is returned."""
@@ -83,6 +98,9 @@ def _looks_like_brand_fake(host: str) -> bool:
         sld = parts[-2]
     has_brand = any(b in sld for b in BRANDS)
     return has_brand and ("-" in sld or any(c.isdigit() for c in sld))
+
+
+looks_like_brand_fake = _looks_like_brand_fake  # public name
 
 
 def _safe_browsing_hit(urls) -> bool:

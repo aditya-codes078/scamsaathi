@@ -204,7 +204,7 @@ export default function WhatHappened() {
       <div className="flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#2563EB]/10 text-[#2563EB] mb-2 font-sans">
-            Incident Response Guide
+            {t.whatBadge}
           </div>
           <h2 className="font-heading text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             {t.whatTitle}
@@ -216,7 +216,7 @@ export default function WhatHappened() {
       </div>
 
       {/* Interactive Options Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6" role="group" aria-label="Incident response options">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6" role="group" aria-label={t.whatGroupAria}>
         {currentOptions.map((option) => {
           const isChecked = selected.includes(option.id);
           const Icon = option.icon;
@@ -243,14 +243,14 @@ export default function WhatHappened() {
                 <div className="flex items-center gap-2">
                   <Icon
                     className={`h-4 w-4 shrink-0 ${
-                      isChecked ? "text-[#2563EB]" : "text-slate-500"
+                      isChecked ? "text-[#2563EB]" : "text-slate-600 dark:text-slate-400"
                     }`}
                   />
                   <span className="font-heading font-bold text-sm text-slate-900 dark:text-white">
                     {option.label}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed font-sans">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed font-sans">
                   {option.sublabel}
                 </p>
               </div>
@@ -303,7 +303,7 @@ export default function WhatHappened() {
             <div className="flex items-center gap-2">
               <a
                 href="tel:1930"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#E11D48] text-white font-bold transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#BE123C] hover:bg-[#9F1239] text-white font-bold transition-colors shadow-sm"
               >
                 <PhoneCall className="h-3.5 w-3.5" />
                 {t.btnCall1930}
@@ -325,13 +325,13 @@ export default function WhatHappened() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-center text-sm text-slate-500 font-sans">
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-center text-sm text-slate-600 dark:text-slate-400 font-sans">
           {t.whatSelectPrompt}
         </div>
       )}
 
       {/* Always visible statutory footer */}
-      <div className="mt-4 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-3 font-sans">
+      <div className="mt-4 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-3 font-sans">
         <span>{t.whatStatutoryHelpline}</span>
         <a
           href="https://cybercrime.gov.in"

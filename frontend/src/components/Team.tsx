@@ -17,6 +17,7 @@ interface TeamMember {
   imageSrc: string;
   icon: typeof Brain;
   accent: string;
+  accentText: string;
   githubUrl: string;
 }
 
@@ -32,6 +33,7 @@ export default function Team() {
       imageSrc: "/images/team-anshi.jpg",
       icon: Brain,
       accent: "#E11D48", // Coral / Rose
+      accentText: isDark ? "#FDA4AF" : "#BE123C",
       githubUrl: GITHUB_PROFILES["Anshi Verma"],
     },
     {
@@ -41,6 +43,7 @@ export default function Team() {
       imageSrc: "/images/team-aditya.jpg",
       icon: Code,
       accent: "#2563EB", // Electric blue
+      accentText: isDark ? "#93C5FD" : "#1D4ED8",
       githubUrl: GITHUB_PROFILES["Aditya Kumar"],
     },
     {
@@ -50,6 +53,7 @@ export default function Team() {
       imageSrc: "/images/team-shourya.jpg",
       icon: Shield,
       accent: "#F59E0B", // Amber
+      accentText: isDark ? "#FDE68A" : "#B45309",
       githubUrl: GITHUB_PROFILES["Shourya Srivastava"],
     },
     {
@@ -59,6 +63,7 @@ export default function Team() {
       imageSrc: "/images/team-devanshi.jpg",
       icon: CheckCheck,
       accent: "#14B8A6", // Teal
+      accentText: isDark ? "#5EEAD4" : "#0F766E",
       githubUrl: GITHUB_PROFILES["Devanshi Singh"],
     },
   ];
@@ -103,7 +108,7 @@ export default function Team() {
                   <div className="w-24 h-24 rounded-3xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-md">
                     <img
                       src={member.imageSrc}
-                      alt={`Photo of ${member.name}, ${member.role}`}
+                      alt={t.teamPhotoAlt.replace("{name}", member.name).replace("{role}", member.role)}
                       width={400}
                       height={400}
                       loading="lazy"
@@ -124,7 +129,7 @@ export default function Team() {
                     href={member.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${member.name} on GitHub (opens in a new tab)`}
+                    aria-label={t.teamGithubAria.replace("{name}", member.name)}
                     className="hover:underline decoration-[#2563EB]/40 underline-offset-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 dark:focus:ring-offset-slate-900"
                   >
                     {member.name}
@@ -135,9 +140,9 @@ export default function Team() {
                 <div
                   className="mt-1 px-3 py-1 rounded-full text-xs font-bold border font-sans"
                   style={{
-                    color: member.accent,
-                    borderColor: `${member.accent}40`,
-                    backgroundColor: `${member.accent}10`,
+                    color: member.accentText,
+                    borderColor: isDark ? `${member.accent}40` : `${member.accentText}40`,
+                    backgroundColor: isDark ? `${member.accent}15` : `${member.accentText}10`,
                   }}
                 >
                   {member.role}

@@ -23,12 +23,12 @@ export default function SafetyBanner() {
                 <ShieldAlert className="w-7 h-7" />
               </div>
               <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-950 text-[#E11D48] border border-rose-200 dark:border-rose-900 text-[11px] font-bold uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 text-[11px] font-bold uppercase tracking-wider mb-2">
                   {t.bannerBadge}
                 </div>
                 <h3 className="font-heading text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
                   {t.bannerTitlePart1}
-                  <span className="text-[#E11D48]">{t.bannerHelpline}</span>
+                  <span className="text-rose-700 dark:text-rose-400">{t.bannerHelpline}</span>
                   {t.bannerTitlePart2}
                   <span className="text-[#2563EB]">{t.bannerPortal}</span>
                 </h3>
@@ -42,7 +42,7 @@ export default function SafetyBanner() {
             <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto shrink-0 font-sans">
               <a
                 href="tel:1930"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#E11D48] hover:bg-rose-700 text-white font-bold text-sm shadow-[0_4px_15px_rgba(225,29,72,0.35)] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-400"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#BE123C] hover:bg-[#9F1239] text-white font-bold text-sm shadow-[0_4px_15px_rgba(190,18,60,0.35)] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-rose-400"
               >
                 <PhoneCall className="w-4 h-4 animate-pulse" />
                 <span>{t.bannerCallBtn}</span>
@@ -60,7 +60,7 @@ export default function SafetyBanner() {
               >
                 <Globe className="w-4 h-4 text-[#2563EB]" />
                 <span>cybercrime.gov.in</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               </a>
             </div>
           </div>

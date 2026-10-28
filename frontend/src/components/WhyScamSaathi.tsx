@@ -38,7 +38,7 @@ export default function WhyScamSaathi() {
       description: t.whyCard3Desc,
       icon: LockKeyhole,
       highlight: t.whyCard3Badge,
-      color: "#14B8A6", // Teal
+      color: isDark ? "#14B8A6" : "#0F766E", // Teal (≥ 4.5:1 text contrast in both themes)
     },
   ];
 
@@ -128,7 +128,7 @@ export default function WhyScamSaathi() {
           >
             <img
               src="/images/story-1.jpg"
-              alt="Evidence over panic illustration"
+              alt={t.whyStory1ImgAlt}
               width={600}
               height={400}
               loading="lazy"
@@ -154,14 +154,14 @@ export default function WhyScamSaathi() {
           >
             <img
               src="/images/story-2.jpg"
-              alt="Incident containment illustration"
+              alt={t.whyStory2ImgAlt}
               width={600}
               height={400}
               loading="lazy"
               className="w-full sm:w-44 h-36 object-cover rounded-2xl border border-slate-200 dark:border-slate-800"
             />
             <div className="space-y-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#14B8A6]">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#0F766E] dark:text-[#14B8A6]">
                 {t.whyStory2Principle}
               </span>
               <h4 className="font-heading font-bold text-base text-slate-900 dark:text-white">

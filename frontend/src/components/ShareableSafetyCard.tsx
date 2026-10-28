@@ -177,7 +177,7 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
 
   return (
     <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
         <AlertTriangle className="w-4 h-4 text-[#F59E0B]" />
         <span>{t.sharePrivacyNote}</span>
       </div>
@@ -191,7 +191,7 @@ export default function ShareableSafetyCard({ riskLevel, signals }: ShareableSaf
             ? "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-[0_0_20px_rgba(37,99,235,0.3)]"
             : "bg-[#0F172A] hover:bg-slate-800 text-white shadow-md hover:-translate-y-0.5"
         }`}
-        title="Share or download high-resolution safety card for family"
+        title={t.btnShareFamily}
       >
         {copied ? (
           <>

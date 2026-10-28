@@ -36,7 +36,7 @@ export default function Footer() {
                 HackIndia 2026
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm font-sans">
+            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm font-sans">
               {t.footerMission}
             </p>
           </div>
@@ -88,14 +88,14 @@ export default function Footer() {
             {t.footerCredits}
           </div>
 
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
             <Lock className="w-3.5 h-3.5 text-[#14B8A6]" />
             <span>{t.footerPrivacy}</span>
           </div>
 
-          <div className="text-[11px] text-slate-400 flex items-center gap-1">
-            <span>Built with</span>
-            <Heart className="w-3 h-3 text-[#E11D48] fill-[#E11D48]" />
+          <div className="text-[11px] text-slate-600 dark:text-slate-400 flex items-center gap-1">
+            <span>{t.footerBuiltWithLove}</span>
+            <Heart className="w-3 h-3 text-[#BE123C] fill-[#BE123C]" />
             <span>{t.footerBuiltWith}</span>
           </div>
         </div>

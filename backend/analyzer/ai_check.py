@@ -22,9 +22,11 @@ import httpx
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+# Set GEMINI_DISABLED=1 in Render to turn the AI off (rules only, fastest)
+GEMINI_DISABLED = os.getenv("GEMINI_DISABLED", "0") == "1"
 MAX_CHARS = 2000
 MIN_CHARS = 12  # greetings and tiny texts skip the AI call
-TIMEOUT_SECONDS = 8.0  # if Gemini is slower than this, we answer with the rules only
+TIMEOUT_SECONDS = float(os.getenv("GEMINI_TIMEOUT", "8"))  # slower than this: rules only
 
 # Remembers successful answers, so repeating the same message (like in a demo) is instant
 _CACHE = {}
@@ -38,7 +40,7 @@ Reply ONLY with JSON in exactly this shape:
 Rules:
 - verdict must be one of: likely_scam, suspicious, looks_ok.
 - extra_signals: at most 3 short phrases, only for red flags you actually see in the text. Write them in {LANG}.
-- explanation: {LANG}, calm tone, explain WHY, do not scare the user.
+- explanation: {LANG}, calm tone, explain WHY, do not scare the user. Even if the text itself is in another language, answer in {LANG}.
 - Never ask for or repeat OTPs, PINs, passwords or card numbers. Never say a link is safe.
 - If unsure, choose suspicious or looks_ok, not likely_scam."""
 
@@ -51,7 +53,7 @@ LANG_TEXT = {
 def gemini_analyze(text: str, rule_signals: list, lang: str = "en"):
     """Returns {"verdict", "extra_signals", "explanation"} or None if unavailable.
     lang is "en" or "hi": the language of the explanation and extra signals."""
-    if not GEMINI_API_KEY or len(text.strip()) < MIN_CHARS:
+    if GEMINI_DISABLED or not GEMINI_API_KEY or len(text.strip()) < MIN_CHARS:
         return None
 
     if lang not in LANG_TEXT:

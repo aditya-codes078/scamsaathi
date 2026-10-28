@@ -28,32 +28,7 @@ import { useTheme } from "./ThemeContext";
 
 type CheckerMode = "message" | "link" | "screenshot";
 
-// 3 required clickable example messages for Message mode
-const MESSAGE_EXAMPLES: ExampleMessage[] = [
-  {
-    id: "fake-kyc",
-    category: "Banking Fraud",
-    title: "Fake KYC & OTP Request",
-    riskHint: "Critical",
-    text: "Dear Customer, your SBI account will be blocked today due to pending KYC. Visit http://bit.ly/sbi-kyc to update PAN and enter your OTP immediately to avoid suspension.",
-  },
-  {
-    id: "fake-internship",
-    category: "Student Scam",
-    title: "Fake Internship Fee Offer",
-    riskHint: "High",
-    text: "Congratulations! Selected for Web Dev Remote Internship at TechCorp. Stipend: ₹25,000/month. Pay ₹499 refundable registration fee via UPI within 2 hours to confirm your offer.",
-  },
-  {
-    id: "normal-meeting",
-    category: "Safe Message",
-    title: "Normal Routine Message",
-    riskHint: "Low",
-    text: "Hi, kal ka meeting 5 baje hai",
-  },
-];
-
-// Clickable example links for Link mode
+// Link example interface for Link mode
 interface LinkExample {
   id: string;
   category: string;
@@ -62,31 +37,7 @@ interface LinkExample {
   riskHint: RiskLevel;
 }
 
-const LINK_EXAMPLES: LinkExample[] = [
-  {
-    id: "bitly-kyc",
-    category: "Suspicious Shortener",
-    title: "Shortened Bank Phishing Link",
-    url: "http://bit.ly/sbi-kyc-update",
-    riskHint: "Critical",
-  },
-  {
-    id: "odd-tld-lottery",
-    category: "High-Risk Domain",
-    title: "Lottery Claim .xyz Domain",
-    url: "https://free-reward-claim.xyz/lottery",
-    riskHint: "High",
-  },
-  {
-    id: "legit-meet",
-    category: "Normal Work URL",
-    title: "Google Meet Workspace Link",
-    url: "https://meet.google.com/abc-defg-hij",
-    riskHint: "Low",
-  },
-];
-
-// Exact Risk Colors: Low #16A34A, Caution #F59E0B, High #F97316, Critical #E11D48
+// Theme-aware, WCAG AA compliant risk colors (≥ 4.5:1 text contrast in both themes)
 const riskStyles: Record<
   RiskLevel,
   {
@@ -98,31 +49,31 @@ const riskStyles: Record<
   }
 > = {
   Low: {
-    badge: "bg-[#16A34A]/10 text-[#16A34A] border-[#16A34A]/30",
-    border: "border-[#16A34A]/30",
-    bg: "bg-[#16A34A]/5",
-    textColor: "text-[#16A34A]",
+    badge: "bg-emerald-50 dark:bg-emerald-950/40 text-[#15803D] dark:text-[#4ADE80] border-emerald-300 dark:border-emerald-800",
+    border: "border-emerald-300 dark:border-emerald-800",
+    bg: "bg-emerald-50/50 dark:bg-emerald-950/20",
+    textColor: "text-[#15803D] dark:text-[#4ADE80]",
     icon: ShieldCheck,
   },
   Caution: {
-    badge: "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/30",
-    border: "border-[#F59E0B]/30",
-    bg: "bg-[#F59E0B]/5",
-    textColor: "text-[#F59E0B]",
+    badge: "bg-amber-50 dark:bg-amber-950/40 text-[#B45309] dark:text-[#FBBF24] border-amber-300 dark:border-amber-800",
+    border: "border-amber-300 dark:border-amber-800",
+    bg: "bg-amber-50/50 dark:bg-amber-950/20",
+    textColor: "text-[#B45309] dark:text-[#FBBF24]",
     icon: AlertTriangle,
   },
   High: {
-    badge: "bg-[#F97316]/10 text-[#F97316] border-[#F97316]/30",
-    border: "border-[#F97316]/30",
-    bg: "bg-[#F97316]/5",
-    textColor: "text-[#F97316]",
+    badge: "bg-orange-50 dark:bg-orange-950/40 text-[#C2410C] dark:text-[#FB923C] border-orange-300 dark:border-orange-800",
+    border: "border-orange-300 dark:border-orange-800",
+    bg: "bg-orange-50/50 dark:bg-orange-950/20",
+    textColor: "text-[#C2410C] dark:text-[#FB923C]",
     icon: ShieldAlert,
   },
   Critical: {
-    badge: "bg-[#E11D48]/10 text-[#E11D48] border-[#E11D48]/30",
-    border: "border-[#E11D48]/40",
-    bg: "bg-[#E11D48]/5",
-    textColor: "text-[#E11D48]",
+    badge: "bg-rose-50 dark:bg-rose-950/40 text-[#BE123C] dark:text-[#FDA4AF] border-rose-300 dark:border-rose-800",
+    border: "border-rose-300 dark:border-rose-800",
+    bg: "bg-rose-50/50 dark:bg-rose-950/20",
+    textColor: "text-[#BE123C] dark:text-[#FDA4AF]",
     icon: Flame,
   },
 };
@@ -231,6 +182,61 @@ export default function MessageChecker() {
     Critical: t.riskTitleCritical,
   };
 
+  const riskBadgeMap: Record<RiskLevel, string> = {
+    Low: t.riskBadgeLow,
+    Caution: t.riskBadgeCaution,
+    High: t.riskBadgeHigh,
+    Critical: t.riskBadgeCritical,
+  };
+
+  const messageExamples: ExampleMessage[] = [
+    {
+      id: "fake-kyc",
+      category: t.example1Category,
+      title: t.example1Title,
+      riskHint: "Critical",
+      text: "Dear Customer, your SBI account will be blocked today due to pending KYC. Visit http://bit.ly/sbi-kyc to update PAN and enter your OTP immediately to avoid suspension.",
+    },
+    {
+      id: "fake-internship",
+      category: t.example2Category,
+      title: t.example2Title,
+      riskHint: "High",
+      text: "Congratulations! Selected for Web Dev Remote Internship at TechCorp. Stipend: ₹25,000/month. Pay ₹499 refundable registration fee via UPI within 2 hours to confirm your offer.",
+    },
+    {
+      id: "normal-meeting",
+      category: t.example3Category,
+      title: t.example3Title,
+      riskHint: "Low",
+      text: "Hi, kal ka meeting 5 baje hai",
+    },
+  ];
+
+  const linkExamples: LinkExample[] = [
+    {
+      id: "bitly-kyc",
+      category: t.linkEx1Category,
+      title: t.linkEx1Title,
+      url: "http://bit.ly/sbi-kyc-update",
+      riskHint: "Critical",
+    },
+    {
+      id: "odd-tld-lottery",
+      category: t.linkEx2Category,
+      title: t.linkEx2Title,
+      url: "https://free-reward-claim.xyz/lottery",
+      riskHint: "High",
+    },
+    {
+      id: "legit-meet",
+      category: t.linkEx3Category,
+      title: t.linkEx3Title,
+      url: "https://meet.google.com/abc-defg-hij",
+      riskHint: "Low",
+    },
+  ];
+
   return (
     <section id="checker" className="py-16 sm:py-24 scroll-mt-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -331,13 +337,13 @@ export default function MessageChecker() {
               {/* 3 Clickable Message Examples */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                     {t.messageExamplesLabel}
                   </span>
-                  <span className="text-[11px] text-slate-400">{t.messageExamplesHint}</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t.messageExamplesHint}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-4">
-                  {MESSAGE_EXAMPLES.map((example) => {
+                  {messageExamples.map((example) => {
                     const style = riskStyles[example.riskHint];
                     return (
                       <button
@@ -351,17 +357,17 @@ export default function MessageChecker() {
                         }`}
                       >
                         <div className="flex items-center justify-between w-full mb-1">
-                          <span className="text-[11px] font-semibold text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300">
+                          <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200">
                             {example.category}
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${style.badge}`}>
-                            {example.riskHint}
+                            {riskBadgeMap[example.riskHint]}
                           </span>
                         </div>
                         <span className="font-heading text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#2563EB] line-clamp-1">
                           {example.title}
                         </span>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 font-mono">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 mt-0.5 font-mono">
                           "{example.text}"
                         </p>
                       </button>
@@ -437,13 +443,13 @@ export default function MessageChecker() {
               {/* Clickable Link Examples */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                     {t.linkExamplesLabel}
                   </span>
-                  <span className="text-[11px] text-slate-400">{t.linkExamplesHint}</span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{t.linkExamplesHint}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-4">
-                  {LINK_EXAMPLES.map((example) => {
+                  {linkExamples.map((example) => {
                     const style = riskStyles[example.riskHint];
                     return (
                       <button
@@ -457,17 +463,17 @@ export default function MessageChecker() {
                         }`}
                       >
                         <div className="flex items-center justify-between w-full mb-1">
-                          <span className="text-[11px] font-semibold text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300">
+                          <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200">
                             {example.category}
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${style.badge}`}>
-                            {example.riskHint}
+                            {riskBadgeMap[example.riskHint]}
                           </span>
                         </div>
                         <span className="font-heading text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#2563EB]">
                           {example.title}
                         </span>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5 font-mono">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 truncate mt-0.5 font-mono">
                           {example.url}
                         </p>
                       </button>
@@ -601,10 +607,10 @@ export default function MessageChecker() {
                       }`}
                     >
                       <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
-                      {result.risk_level} Risk
+                      {riskBadgeMap[result.risk_level]}
                     </span>
                     {!isLowWithNoSignals && result.signals.length > 0 && (
-                      <span className="text-xs text-slate-500 font-mono">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 font-mono font-medium">
                         {t.threatSignalsAnalyzed.replace("{count}", String(result.signals.length))}
                       </span>
                     )}

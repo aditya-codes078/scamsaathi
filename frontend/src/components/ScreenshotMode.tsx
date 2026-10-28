@@ -201,7 +201,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
     setOcrLoading(true);
     setOcrProgress(5);
     setErrorMessage(null);
-    setProgressStatus("Loading OCR models...");
+    setProgressStatus(t.ocrLoadingEngine);
     isCancelledRef.current = false;
 
     try {
@@ -210,7 +210,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
 
       if (isCancelledRef.current) return;
 
-      setProgressStatus("Initializing English + Hindi recognition...");
+      setProgressStatus(t.ocrInitEngine);
       setOcrProgress(20);
 
       const worker = await createWorker("eng+hin", undefined, {
@@ -219,7 +219,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
           if (m.status === "recognizing text") {
             const pct = Math.round((m.progress || 0) * 80) + 20;
             setOcrProgress(pct);
-            setProgressStatus(`Extracting text (${pct}%)...`);
+            setProgressStatus(t.ocrExtractingProgress.replace("{pct}", String(pct)));
           }
         },
       });
@@ -272,7 +272,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
           <span className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse" />
           <strong className="text-slate-900 dark:text-white">{t.screenshotPrivacy}</strong>
         </div>
-        <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+        <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium hidden sm:inline">
           {t.screenshotPrivacySub}
         </span>
       </div>
@@ -307,7 +307,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
             accept="image/png,image/jpeg,image/jpg,image/webp,image/*"
             onChange={handleFileInputChange}
             className="hidden"
-            aria-label="Screenshot file input"
+            aria-label={t.screenshotFileInputAria}
           />
 
           <div className="flex flex-col items-center justify-center gap-3">
@@ -319,12 +319,12 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
               <p className="font-heading font-bold text-base text-slate-900 dark:text-white">
                 {t.screenshotDropTitle}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-sans">
                 {t.screenshotPasteHint}
               </p>
             </div>
 
-            <div className="flex items-center gap-3 text-[11px] text-slate-400 pt-2 font-sans">
+            <div className="flex items-center gap-3 text-[11px] text-slate-600 dark:text-slate-400 pt-2 font-sans font-medium">
               <span>{t.screenshotMeta}</span>
             </div>
           </div>
@@ -342,7 +342,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
               <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[220px]">
                 {fileName}
               </span>
-              <span className="text-[11px] text-slate-400 font-mono">({fileSize})</span>
+              <span className="text-[11px] text-slate-600 dark:text-slate-400 font-mono font-medium">({fileSize})</span>
             </div>
 
             <button
@@ -360,7 +360,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
           <div className="relative rounded-2xl overflow-hidden bg-slate-950 flex items-center justify-center max-h-56 border border-slate-800">
             <img
               src={imagePreview}
-              alt="Screenshot preview"
+              alt={t.screenshotPreviewAlt}
               className="max-h-56 object-contain"
             />
           </div>
@@ -368,7 +368,7 @@ export default function ScreenshotMode({ onAnalyzeText, loading, isDark }: Scree
           {/* OCR Trigger or Status */}
           {!extractedText && !ocrLoading && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <p className="text-xs text-slate-500 font-sans">
+              <p className="text-xs text-slate-600 dark:text-slate-400 font-sans">
                 {t.screenshotReady}
               </p>
               <button

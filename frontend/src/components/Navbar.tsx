@@ -29,12 +29,12 @@ export default function Navbar() {
       className={`sticky top-0 z-50 w-full backdrop-blur-md border-b transition-colors ${
         isDark
           ? "bg-[#0B1230]/90 border-slate-800 text-white"
-          : "bg-[#FFF9F0]/90 border-amber-900/10 text-slate-900"
+          : "bg-[#FFF9F0]/95 border-amber-900/10 text-slate-900 shadow-xs"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo with hand-crafted styling (no generic template AI badges) */}
+          {/* Logo with hand-crafted styling */}
           <a
             href="#"
             className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#2563EB] rounded-xl p-1"
@@ -46,7 +46,7 @@ export default function Navbar() {
               <span className="font-heading text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
                 ScamSaathi
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium font-sans">
+              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold font-sans">
                 {t.brandTagline}
               </span>
             </div>
@@ -59,7 +59,7 @@ export default function Navbar() {
                 key={link.label}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className="px-3 py-2 text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                className="px-3 py-2 text-xs lg:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
               >
                 {link.label}
               </a>
@@ -71,7 +71,7 @@ export default function Navbar() {
             {/* Language Switch: Accessible EN | हिन्दी pill */}
             <div
               className={`flex items-center p-0.5 rounded-xl border ${
-                isDark ? "bg-[#141B3D] border-slate-700" : "bg-slate-100/90 border-slate-200"
+                isDark ? "bg-[#141B3D] border-slate-700" : "bg-slate-200/70 border-slate-300"
               }`}
               role="group"
               aria-label={t.navLangAria}
@@ -82,7 +82,7 @@ export default function Navbar() {
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB] ${
                   lang === "en"
                     ? "bg-[#2563EB] text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    : "text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
                 }`}
                 aria-pressed={lang === "en"}
               >
@@ -94,7 +94,7 @@ export default function Navbar() {
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB] ${
                   lang === "hi"
                     ? "bg-[#2563EB] text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    : "text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
                 }`}
                 aria-pressed={lang === "hi"}
               >
@@ -102,23 +102,24 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Theme Toggle Button (React state only) */}
+            {/* Theme Toggle Button */}
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+              className="p-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
               title={isDark ? t.navThemeLight : t.navThemeDark}
-              aria-label="Toggle bright/dark theme"
+              aria-label={isDark ? t.navThemeLight : t.navThemeDark}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-800" />}
             </button>
 
+            {/* Helpline 1930 Button (High Contrast WCAG AA in both modes) */}
             <a
               href="tel:1930"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-[#E11D48] text-xs font-bold transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
-              title="National Cyber Fraud Helpline"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs font-bold transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+              title={t.navHelplineTitle}
             >
-              <PhoneCall className="w-3.5 h-3.5 animate-pulse" />
+              <PhoneCall className="w-3.5 h-3.5 animate-pulse text-rose-600 dark:text-rose-400" />
               <span>{t.navHelpline1930}</span>
             </a>
 
@@ -136,7 +137,7 @@ export default function Navbar() {
             {/* Mobile Language Switch */}
             <div
               className={`flex items-center p-0.5 rounded-xl border text-[11px] ${
-                isDark ? "bg-[#141B3D] border-slate-700" : "bg-slate-100 border-slate-200"
+                isDark ? "bg-[#141B3D] border-slate-700" : "bg-slate-200/80 border-slate-300"
               }`}
               role="group"
               aria-label={t.navLangAria}
@@ -145,7 +146,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setLang("en")}
                 className={`px-2 py-1 rounded-lg font-bold transition-all ${
-                  lang === "en" ? "bg-[#2563EB] text-white" : "text-slate-600 dark:text-slate-400"
+                  lang === "en" ? "bg-[#2563EB] text-white" : "text-slate-700 dark:text-slate-300"
                 }`}
                 aria-pressed={lang === "en"}
               >
@@ -155,7 +156,7 @@ export default function Navbar() {
                 type="button"
                 onClick={() => setLang("hi")}
                 className={`px-2 py-1 rounded-lg font-bold transition-all ${
-                  lang === "hi" ? "bg-[#2563EB] text-white" : "text-slate-600 dark:text-slate-400"
+                  lang === "hi" ? "bg-[#2563EB] text-white" : "text-slate-700 dark:text-slate-300"
                 }`}
                 aria-pressed={lang === "hi"}
               >
@@ -166,24 +167,26 @@ export default function Navbar() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
-              aria-label="Toggle theme"
+              className="p-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200"
+              aria-label={isDark ? t.navThemeLight : t.navThemeDark}
+              title={isDark ? t.navThemeLight : t.navThemeDark}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-800" />}
             </button>
             <a
               href="tel:1930"
-              className="p-2 rounded-xl bg-rose-100 text-[#E11D48] border border-rose-200"
-              aria-label="Call 1930"
+              className="p-2 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900"
+              aria-label={t.navHelplineTitle}
+              title={t.navHelplineTitle}
             >
               <PhoneCall className="w-4 h-4" />
             </a>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700"
+              className="p-2 rounded-xl text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700"
               aria-expanded={mobileMenuOpen}
-              aria-label="Toggle Menu"
+              aria-label={t.navMenuAria}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -203,7 +206,7 @@ export default function Navbar() {
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="block px-3 py-2.5 rounded-xl text-base font-semibold text-slate-800 dark:text-slate-200 hover:bg-[#2563EB]/10 hover:text-[#2563EB] transition-colors"
+              className="block px-3 py-2.5 rounded-xl text-base font-semibold text-slate-900 dark:text-slate-100 hover:bg-[#2563EB]/10 hover:text-[#2563EB] transition-colors"
             >
               {link.label}
             </a>
@@ -211,7 +214,7 @@ export default function Navbar() {
           <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
             <a
               href="tel:1930"
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-rose-50 text-[#E11D48] border border-rose-200 text-sm font-bold"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 text-sm font-bold"
             >
               <PhoneCall className="w-4 h-4" />
               <span>{t.navHelpline1930}</span>

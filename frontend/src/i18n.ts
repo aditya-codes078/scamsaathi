@@ -23,10 +23,12 @@ export const translations = {
     navWhyScamSaathi: "Why ScamSaathi",
     navTeam: "Team",
     navHelpline1930: "Helpline 1930",
+    navHelplineTitle: "National Cyber Fraud Helpline 1930",
     navCheckBtn: "Check Message",
     navThemeLight: "Switch to Bright Mode",
     navThemeDark: "Switch to Dark Mode",
     navLangAria: "Switch language",
+    navMenuAria: "Toggle navigation menu",
 
     // Hero
     heroHeadlinePart1: "From Suspicion to ",
@@ -70,6 +72,8 @@ export const translations = {
 
     bubbleTapHint: "Tap to reveal trap 👆",
     bubbleCloseBtn: "Close",
+    bubbleHoverTitle: "Click to view why this message is a red flag",
+    closeExplanationAria: "Close explanation",
 
     // How It Works
     howBadge: "Workflow & Agent Lifecycle",
@@ -122,6 +126,22 @@ export const translations = {
     tabLink: "Link",
     tabScreenshot: "Screenshot",
 
+    // Message Examples
+    example1Category: "Banking Fraud",
+    example1Title: "Fake KYC & OTP Request",
+    example2Category: "Student Scam",
+    example2Title: "Fake Internship Fee Offer",
+    example3Category: "Safe Message",
+    example3Title: "Normal Routine Message",
+
+    // Link Examples
+    linkEx1Category: "Suspicious Shortener",
+    linkEx1Title: "Shortened Bank Phishing Link",
+    linkEx2Category: "High-Risk Domain",
+    linkEx2Title: "Lottery Claim .xyz Domain",
+    linkEx3Category: "Normal Work URL",
+    linkEx3Title: "Google Meet Workspace Link",
+
     // Message Tab
     messageExamplesLabel: "Try Message Examples:",
     messageExamplesHint: "Click to fill & check",
@@ -165,6 +185,11 @@ export const translations = {
     errFileSize: "File size is larger than 5MB. Maximum allowed size is 5MB.",
     errNoText: "No readable text found. Please upload a clearer or higher-contrast screenshot.",
     errOcrGeneric: "OCR scanning failed. Ensure your connection allows initial model loading, or type the text manually.",
+    ocrLoadingEngine: "Loading on-device OCR engine...",
+    ocrInitEngine: "Initializing English + Hindi recognition...",
+    ocrExtractingProgress: "Extracting text ({pct}%)...",
+    screenshotFileInputAria: "Screenshot file input",
+    screenshotPreviewAlt: "Screenshot preview",
 
     // Result Card
     riskDialTitle: "3D Risk Assessment Dial",
@@ -172,6 +197,10 @@ export const translations = {
     riskTitleCaution: "Caution · Unverified Signals",
     riskTitleHigh: "High Risk · Deception Patterns",
     riskTitleCritical: "Critical Risk · Urgent Phishing Trap",
+    riskBadgeLow: "Low Risk",
+    riskBadgeCaution: "Caution",
+    riskBadgeHigh: "High Risk",
+    riskBadgeCritical: "Critical Risk",
     resultDerivedNote:
       "Derived exclusively from verifiable linguistic markers and threat patterns present in the inspected text.",
     cleanMessageTitle: "Clean Message (No Red Flags Found)",
@@ -190,6 +219,20 @@ export const translations = {
     evidenceNoTriggersTitle: "No Threat Triggers Found in Message Text",
     evidenceTapToClose: "Tap anywhere to close",
 
+    // Evidence Tooltips
+    threatUrgencyCategory: "Urgency Pressure",
+    threatUrgencyReason: "Psychological urgency designed to induce panic and rush unverified decisions.",
+    threatOtpCategory: "Credential Request",
+    threatOtpReason: "Direct attempt to harvest banking credentials. Legitimate institutions never ask for OTP/PIN.",
+    threatLinkCategory: "Disguised Link",
+    threatLinkReason: "Shortened or unverified domain used to disguise a malicious phishing destination.",
+    threatFeeCategory: "Upfront Fee",
+    threatFeeReason: "Demand for advance money under the pretext of job verification or lottery claim.",
+    threatAuthorityCategory: "Authority Threat",
+    threatAuthorityReason: "Coercive authority impersonation. Real police officers never arrest via video calls or SMS.",
+    threatAccountCategory: "Account Threat",
+    threatAccountReason: "Fabricated threat of service deactivation to frighten the recipient into taking hasty action.",
+
     // Share Card
     sharePrivacyNote: "Card hides your private text & only shares verified evidence.",
     btnShareFamily: "Share with family",
@@ -197,26 +240,28 @@ export const translations = {
     shareSaved: "Card Saved / Shared!",
 
     // What Happened (Incident Response)
-    whatTitle: "Kya hua? Aapne kya kiya?",
+    whatBadge: "Incident Response Guide",
+    whatTitle: "What happened? What did you do?",
     whatSubtitle:
-      "Agar aapne is message par koi action liya hai, toh select karein. Hum aapko turant containment steps batayenge.",
-    whatTailoredTitle: "Aapke liye agle surakshit kadam (Tailored Safe Actions)",
+      "If you took any action on this message, select below. We will guide you through immediate containment steps.",
+    whatTailoredTitle: "Tailored Safe Actions for You",
     whatEmergencyTitle: "National Emergency Contacts:",
     btnCall1930: "Call 1930 Helpline",
     portalLink: "cybercrime.gov.in",
     whatSelectPrompt: "Select options above to view immediate containment steps.",
     whatStatutoryHelpline: "National Cyber Crime Reporting Helpline: 1930",
+    whatGroupAria: "Incident response options",
 
     // What Happened Options
-    optClickedLabel: "Maine link par click kiya",
+    optClickedLabel: "I clicked on a link",
     optClickedSub: "Clicked on a suspicious link in SMS, email, or WhatsApp",
-    optInstalledLabel: "Maine koi app install ki",
+    optInstalledLabel: "I installed an app",
     optInstalledSub: "Downloaded an APK, AnyDesk, TeamViewer, or unauthorized utility",
-    optSharedLabel: "Maine OTP ya personal jaankari share ki",
+    optSharedLabel: "I shared OTP or personal info",
     optSharedSub: "Shared OTP, card numbers, Aadhaar, PAN, or passwords",
-    optPaidLabel: "Maine paisa bheja",
+    optPaidLabel: "I sent money",
     optPaidSub: "Sent money via UPI, QR code, bank transfer, or wallet",
-    optNoneLabel: "Maine kuch nahi kiya",
+    optNoneLabel: "I took no action",
     optNoneSub: "Detected the fraud early and took no action on the message",
 
     // Why ScamSaathi
@@ -245,11 +290,13 @@ export const translations = {
     whyStory1Title: "Evidence Over Panic",
     whyStory1Desc:
       "Scammers rely on creating cognitive overload. We unpack observable clues so you can make a rational decision.",
+    whyStory1ImgAlt: "Evidence over panic illustration",
 
     whyStory2Principle: "Principle 02",
     whyStory2Title: "Incident Containment",
     whyStory2Desc:
       "Taking action in the first 2 hours after a scam (the golden window) dramatically increases recovery rates.",
+    whyStory2ImgAlt: "Incident containment illustration",
 
     whyTransparencyTitle: "Transparent AI Assistance:",
     whyTransparencyDesc:
@@ -278,17 +325,20 @@ export const translations = {
     memberShouryaFocus: "FastAPI server, threat signal extraction pipeline, and cybercrime API integrations.",
     memberDevanshiRole: "Research / QA",
     memberDevanshiFocus: "Phishing attack taxonomy, test case validation, and Indian cyber law compliance.",
+    teamPhotoAlt: "Photo of {name}, {role}",
+    teamGithubAria: "{name} on GitHub (opens in a new tab)",
 
     // Footer
     footerMission: "Explainable Hindi/English cyber-safety response agent for fraud detection and guided safe recovery.",
     footerCredits: "HackIndia x KIT | Team Build Beyond",
     footerPrivacy: "Zero-tracking · No credentials requested · Client-Safe",
+    footerBuiltWithLove: "Built with",
     footerBuiltWith: "for HackIndia x KIT Hackathon 2026",
 
     // Errors
     errorTitle: "Temporary Notice",
-    errorServerUnavailable: "Server abhi available nahi hai, thodi der baad try karein",
-    btnRetry: "Dobara try karein",
+    errorServerUnavailable: "Server is currently unavailable, please try again in a moment.",
+    btnRetry: "Try again",
   },
 
   hi: {
@@ -303,10 +353,12 @@ export const translations = {
     navWhyScamSaathi: "ScamSaathi क्यों",
     navTeam: "हमारी टीम",
     navHelpline1930: "हेल्पलाइन 1930",
+    navHelplineTitle: "राष्ट्रीय साइबर धोखाधड़ी हेल्पलाइन 1930",
     navCheckBtn: "संदेश जांचें",
     navThemeLight: "लाइट मोड चालू करें",
     navThemeDark: "डार्क मोड चालू करें",
     navLangAria: "भाषा बदलें",
+    navMenuAria: "नेविगेशन मेनू खोलें या बंद करें",
 
     // Hero
     heroHeadlinePart1: "संदेह से ",
@@ -350,6 +402,8 @@ export const translations = {
 
     bubbleTapHint: "धोखा देखने के लिए टैप करें 👆",
     bubbleCloseBtn: "बंद करें",
+    bubbleHoverTitle: "इस संदेश में छिपे खतरे को देखने के लिए क्लिक करें",
+    closeExplanationAria: "व्याख्या बंद करें",
 
     // How It Works
     howBadge: "कार्यप्रणाली एवं सुरक्षा चक्र",
@@ -402,6 +456,22 @@ export const translations = {
     tabLink: "लिंक",
     tabScreenshot: "स्क्रीनशॉट",
 
+    // Message Examples
+    example1Category: "बैंकिंग धोखाधड़ी",
+    example1Title: "फर्जी KYC व OTP अनुरोध",
+    example2Category: "छात्र धोखाधड़ी",
+    example2Title: "फर्जी इंटर्नशिप फीस का झांसा",
+    example3Category: "सुरक्षित संदेश",
+    example3Title: "सामान्य दिनचर्या संदेश",
+
+    // Link Examples
+    linkEx1Category: "संदिग्ध छोटा लिंक",
+    linkEx1Title: "बैंक फिशिंग हेतु छोटा लिंक",
+    linkEx2Category: "खतरनाक डोमेन",
+    linkEx2Title: "लॉटरी दावा .xyz डोमेन",
+    linkEx3Category: "सामान्य कार्य URL",
+    linkEx3Title: "Google Meet मीटिंग लिंक",
+
     // Message Tab
     messageExamplesLabel: "उदाहरण संदेश आज़माएं:",
     messageExamplesHint: "भरने और जांचने के लिए क्लिक करें",
@@ -445,6 +515,11 @@ export const translations = {
     errFileSize: "फाइल का आकार 5MB से अधिक है। कृपया 5MB से छोटी फाइल चुनें।",
     errNoText: "कोई पठनीय टेक्स्ट नहीं मिला। कृपया अधिक स्पष्ट स्क्रीनशॉट अपलोड करें।",
     errOcrGeneric: "OCR स्कैन विफल रहा। कृपया टेक्स्ट को स्वयं टाइप या पेस्ट करें।",
+    ocrLoadingEngine: "ऑन-डिवाइस OCR इंजन लोड हो रहा है...",
+    ocrInitEngine: "अंग्रेजी और हिंदी पहचान मॉडल तैयार हो रहे हैं...",
+    ocrExtractingProgress: "टेक्स्ट निकाला जा रहा है ({pct}%)...",
+    screenshotFileInputAria: "स्क्रीनशॉट फाइल चुनें",
+    screenshotPreviewAlt: "स्क्रीनशॉट पूर्वावलोकन",
 
     // Result Card
     riskDialTitle: "3D जोखिम आकलन डायल",
@@ -452,6 +527,10 @@ export const translations = {
     riskTitleCaution: "चेतावनी · असत्यापित संकेत",
     riskTitleHigh: "उच्च जोखिम · धोखाधड़ी के लक्षण",
     riskTitleCritical: "गंभीर जोखिम · खतरनाक फिशिंग हमला",
+    riskBadgeLow: "कम जोखिम",
+    riskBadgeCaution: "सावधानी",
+    riskBadgeHigh: "उच्च जोखिम",
+    riskBadgeCritical: "गंभीर जोखिम",
     resultDerivedNote:
       "जांचे गए टेक्स्ट में मौजूद भाषा और धोखाधड़ी के स्पष्ट संकेतों पर आधारित।",
     cleanMessageTitle: "सुरक्षित संदेश (कोई खतरा नहीं मिला)",
@@ -470,6 +549,20 @@ export const translations = {
     evidenceNoTriggersTitle: "संदेश में कोई संदिग्ध संकेत शब्द नहीं मिले",
     evidenceTapToClose: "बंद करने के लिए कहीं भी टैप करें",
 
+    // Evidence Tooltips
+    threatUrgencyCategory: "तात्कालिकता का दबाव",
+    threatUrgencyReason: "घबराहट पैदा करने और बिना सोचे-समझे निर्णय लेने के लिए जल्दबाज़ी का दबाव।",
+    threatOtpCategory: "गोपनीय जानकारी की मांग",
+    threatOtpReason: "बैंकिंग क्रेडेंशियल चुराने का सीधा प्रयास। असली बैंक कभी OTP या PIN नहीं मांगते।",
+    threatLinkCategory: "भ्रामक छोटा लिंक",
+    threatLinkReason: "असली वेबसाइट छुपाकर फर्जी फिशिंग पेज पर ले जाने वाला संदिग्ध लिंक।",
+    threatFeeCategory: "अग्रिम फीस की मांग",
+    threatFeeReason: "नौकरी सत्यापन या ईनाम के बहाने पहले पैसे वसूलने का झांसा।",
+    threatAuthorityCategory: "अधिकारी बनकर धमकी",
+    threatAuthorityReason: "फर्जी पुलिस या CBI अधिकारी बनकर डराना। असली अधिकारी कभी वीडियो कॉल पर गिरफ्तारी नहीं करते।",
+    threatAccountCategory: "खाता बंद करने की धमकी",
+    threatAccountReason: "जल्दबाज़ी में कदम उठाने के लिए सेवा बंद होने का मनगढ़ंत डर।",
+
     // Share Card
     sharePrivacyNote: "यह कार्ड आपका निजी संदेश छुपाकर केवल सुरक्षा साक्ष्य दिखाता है।",
     btnShareFamily: "परिवार के साथ शेयर करें",
@@ -477,15 +570,17 @@ export const translations = {
     shareSaved: "कार्ड सहेजा / शेयर किया गया!",
 
     // What Happened (Incident Response)
+    whatBadge: "घटना प्रतिक्रिया गाइड",
     whatTitle: "क्या हुआ? आपने क्या किया?",
     whatSubtitle:
-      "यदि आपने इस संदेश पर कोई कार्रवाई की है, तो चुनें। हम तुरंत नुकसान रोकने के कदम बताएंगे।",
-    whatTailoredTitle: "आपके लिए अगले सुरक्षित कदम (बचाव कार्य)",
+      "यदि आपने इस संदेश पर कोई कदम उठाया है, तो नीचे चुनें। हम तुरंत नुकसान रोकने के उपाय बताएंगे।",
+    whatTailoredTitle: "आपके लिए व्यक्तिगत सुरक्षा कदम",
     whatEmergencyTitle: "राष्ट्रीय आपातकालीन संपर्क:",
-    btnCall1930: "1930 पर कॉल करें",
+    btnCall1930: "1930 हेल्पलाइन पर कॉल करें",
     portalLink: "cybercrime.gov.in",
-    whatSelectPrompt: "ऊपर दिए गए विकल्पों में से चुनें ताकि हम तुरंत बचाव के कदम दिखा सकें।",
+    whatSelectPrompt: "तत्काल रोकथाम के कदम देखने के लिए ऊपर दिए गए विकल्पों में से चुनें।",
     whatStatutoryHelpline: "राष्ट्रीय साइबर अपराध रिपोर्टिंग हेल्पलाइन: 1930",
+    whatGroupAria: "घटना प्रतिक्रिया विकल्प",
 
     // What Happened Options
     optClickedLabel: "मैंने लिंक पर क्लिक किया",
@@ -525,11 +620,13 @@ export const translations = {
     whyStory1Title: "डर नहीं, साक्ष्य पर ध्यान",
     whyStory1Desc:
       "ठग जल्दबाज़ी और घबराहट पैदा करते हैं। हम स्पष्ट सबूत दिखाते हैं ताकि आप शांत रहकर सही निर्णय ले सकें।",
+    whyStory1ImgAlt: "घबराहट के बदले साक्ष्य पर ध्यान चित्रांकन",
 
     whyStory2Principle: "सिद्धांत 02",
     whyStory2Title: "तुरंत नुकसान पर रोक",
     whyStory2Desc:
       "धोखाधड़ी के शुरुआती 2 घंटों (गोल्डन पीरियड) में कदम उठाने से पैसे वापस मिलने की संभावना सबसे अधिक होती है।",
+    whyStory2ImgAlt: "घटना रोकथाम चित्रांकन",
 
     whyTransparencyTitle: "पारदर्शी AI सहायता:",
     whyTransparencyDesc:
@@ -558,11 +655,14 @@ export const translations = {
     memberShouryaFocus: "FastAPI सर्वर, सिग्नल निष्कर्षण पाइपलाइन और साइबर सुरक्षा एकीकरण।",
     memberDevanshiRole: "रिसर्च / QA",
     memberDevanshiFocus: "फिशिंग अटैक विश्लेषण, टेस्ट केस सत्यापन और साइबर कानून अनुपालन।",
+    teamPhotoAlt: "{name}, {role} का चित्र",
+    teamGithubAria: "GitHub पर {name} की प्रोफाइल (नए टैब में खुलती है)",
 
     // Footer
     footerMission: "धोखाधड़ी की पहचान और सुरक्षित समाधान के लिए हिंदी/अंग्रेजी साइबर-सुरक्षा एजेंट।",
     footerCredits: "हैकइंडिया x KIT | टीम बिल्ड बियॉन्ड",
     footerPrivacy: "शून्य ट्रैकिंग · कोई पासवर्ड/OTP संग्रह नहीं · पूर्णतः सुरक्षित",
+    footerBuiltWithLove: "समर्पण से निर्मित",
     footerBuiltWith: "हैकइंडिया x KIT हैकथॉन 2026 के लिए निर्मित",
 
     // Errors

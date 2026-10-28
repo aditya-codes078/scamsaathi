@@ -27,29 +27,30 @@ export default function RiskDial({ riskLevel }: RiskDialProps) {
     return () => cancelAnimationFrame(frameId);
   }, [riskLevel]);
 
+  // Theme-aware, WCAG AA compliant colors (≥ 4.5:1 text contrast in both themes)
   const riskColors: Record<RiskLevel, { text: string; bg: string; border: string; label: string }> = {
     Low: {
-      text: "#16A34A",
+      text: isDark ? "#4ADE80" : "#15803D", // green-700
       bg: isDark ? "rgba(22, 163, 74, 0.15)" : "#DCFCE7",
-      border: "#16A34A",
+      border: isDark ? "#16A34A" : "#86EFAC",
       label: t.riskTitleLow.split(" · ")[0],
     },
     Caution: {
-      text: "#F59E0B",
+      text: isDark ? "#FBBF24" : "#B45309", // amber-700
       bg: isDark ? "rgba(245, 158, 11, 0.15)" : "#FEF3C7",
-      border: "#F59E0B",
+      border: isDark ? "#F59E0B" : "#FDE68A",
       label: t.riskTitleCaution.split(" · ")[0],
     },
     High: {
-      text: "#F97316",
+      text: isDark ? "#FB923C" : "#C2410C", // orange-700
       bg: isDark ? "rgba(249, 115, 22, 0.15)" : "#FFEDD5",
-      border: "#F97316",
+      border: isDark ? "#F97316" : "#FDBA74",
       label: t.riskTitleHigh.split(" · ")[0],
     },
     Critical: {
-      text: "#E11D48",
+      text: isDark ? "#FDA4AF" : "#BE123C", // rose-700
       bg: isDark ? "rgba(225, 29, 72, 0.15)" : "#FFE4E6",
-      border: "#E11D48",
+      border: isDark ? "#E11D48" : "#FECDD3",
       label: t.riskTitleCritical.split(" · ")[0],
     },
   };
@@ -64,7 +65,7 @@ export default function RiskDial({ riskLevel }: RiskDialProps) {
           : "bg-white border-slate-200/90 shadow-[0_10px_30px_rgba(0,0,0,0.06)]"
       }`}
     >
-      <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+      <div className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1">
         {t.riskDialTitle}
       </div>
 

@@ -15,49 +15,50 @@ interface ThreatRule {
   color: string;
 }
 
-const THREAT_RULES: ThreatRule[] = [
-  {
-    regex: /\b(urgent|urgently|immediately|immediate|expires|expiring|turant|jaldi|abhi|deadline|within \d+\s*(hours?|mins?|hrs?))\b/i,
-    category: "Urgency Pressure",
-    reason: "Psychological urgency designed to induce panic and rush unverified decisions.",
-    color: "#F97316", // Orange
-  },
-  {
-    regex: /\b(otp|one time password|pin|cvv|password|passcode)\b/i,
-    category: "Credential Request",
-    reason: "Direct attempt to harvest banking credentials. Legitimate institutions never ask for OTP/PIN.",
-    color: "#E11D48", // Red
-  },
-  {
-    regex: /\b(bit\.ly\/[^\s]+|tinyurl\.com\/[^\s]+|cutt\.ly\/[^\s]+|https?:\/\/[^\s]+|\b\w+\.(xyz|top|click)\b)/i,
-    category: "Disguised Link",
-    reason: "Shortened or unverified domain used to disguise a malicious phishing destination.",
-    color: "#7C3AED", // Violet
-  },
-  {
-    regex: /\b(registration fee|processing fee|verification fee|refundable fee|pay rs|pay ₹|send ₹|pay inr|via upi|scanner)\b/i,
-    category: "Upfront Fee",
-    reason: "Demand for advance money under the pretext of job verification or lottery claim.",
-    color: "#F59E0B", // Amber
-  },
-  {
-    regex: /\b(police|cbi|digital arrest|arrest warrant|court notice|customs|fir filed)\b/i,
-    category: "Authority Threat",
-    reason: "Coercive authority impersonation. Real police officers never arrest via video calls or SMS.",
-    color: "#E11D48", // Red
-  },
-  {
-    regex: /\b(kyc|pan card|pan update|account (is |will be )?(blocked|suspended|frozen|locked)|khata band|electricity (cut off|disconnected))\b/i,
-    category: "Account Threat",
-    reason: "Fabricated threat of service deactivation to frighten the recipient into taking hasty action.",
-    color: "#F97316", // Orange
-  },
-];
-
 export default function EvidenceHighlight({ text, signals }: EvidenceHighlightProps) {
   const { isDark } = useTheme();
   const { t } = useLanguage();
   const [activeTooltip, setActiveTooltip] = useState<{ id: number; reason: string; category: string } | null>(null);
+
+  // Localized threat rules with WCAG AA compliant chip colors (≥ 4.5:1 text contrast on white text)
+  const threatRules: ThreatRule[] = [
+    {
+      regex: /\b(urgent|urgently|immediately|immediate|expires|expiring|turant|jaldi|abhi|deadline|within \d+\s*(hours?|mins?|hrs?))\b/i,
+      category: t.threatUrgencyCategory,
+      reason: t.threatUrgencyReason,
+      color: "#C2410C", // Orange-700 (5.4:1 contrast on white)
+    },
+    {
+      regex: /\b(otp|one time password|pin|cvv|password|passcode)\b/i,
+      category: t.threatOtpCategory,
+      reason: t.threatOtpReason,
+      color: "#BE123C", // Rose-700 (5.6:1 contrast on white)
+    },
+    {
+      regex: /\b(bit\.ly\/[^\s]+|tinyurl\.com\/[^\s]+|cutt\.ly\/[^\s]+|https?:\/\/[^\s]+|\b\w+\.(xyz|top|click)\b)/i,
+      category: t.threatLinkCategory,
+      reason: t.threatLinkReason,
+      color: "#6D28D9", // Violet-700 (6.8:1 contrast on white)
+    },
+    {
+      regex: /\b(registration fee|processing fee|verification fee|refundable fee|pay rs|pay ₹|send ₹|pay inr|via upi|scanner)\b/i,
+      category: t.threatFeeCategory,
+      reason: t.threatFeeReason,
+      color: "#B45309", // Amber-700 (5.1:1 contrast on white)
+    },
+    {
+      regex: /\b(police|cbi|digital arrest|arrest warrant|court notice|customs|fir filed)\b/i,
+      category: t.threatAuthorityCategory,
+      reason: t.threatAuthorityReason,
+      color: "#BE123C", // Rose-700 (5.6:1 contrast on white)
+    },
+    {
+      regex: /\b(kyc|pan card|pan update|account (is |will be )?(blocked|suspended|frozen|locked)|khata band|electricity (cut off|disconnected))\b/i,
+      category: t.threatAccountCategory,
+      reason: t.threatAccountReason,
+      color: "#C2410C", // Orange-700 (5.4:1 contrast on white)
+    },
+  ];
 
   if (!text || signals.length === 0) {
     return (
@@ -88,7 +89,7 @@ export default function EvidenceHighlight({ text, signals }: EvidenceHighlightPr
   }
 
   const matches: MatchRange[] = [];
-  for (const rule of THREAT_RULES) {
+  for (const rule of threatRules) {
     const globalRegex = new RegExp(rule.regex.source, "gi");
     let match;
     while ((match = globalRegex.exec(text)) !== null) {
@@ -152,7 +153,7 @@ export default function EvidenceHighlight({ text, signals }: EvidenceHighlightPr
             {t.evidenceTitle}
           </span>
         </div>
-        <span className="text-[11px] text-slate-500 font-medium">
+        <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
           {t.evidencePatternsCount.replace("{count}", String(nonOverlapping.length))}
         </span>
       </div>

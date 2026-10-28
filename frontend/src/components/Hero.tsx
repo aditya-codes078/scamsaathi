@@ -272,7 +272,7 @@ export default function Hero() {
                         : "bg-white border-amber-900/15 text-slate-900"
                     }`}
                     style={{ transform: `translateZ(${bubble.id * 15}px)` }}
-                    title="Click to view why this message is a red flag"
+                    title={t.bubbleHoverTitle}
                   >
                     <div className="flex items-center gap-1.5 mb-1">
                       <span
@@ -292,7 +292,7 @@ export default function Hero() {
                     <span className="text-xs font-bold block truncate max-w-[150px]">
                       {bubble.snippet}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-medium block">
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium block">
                       {t.bubbleTapHint}
                     </span>
                   </button>
@@ -318,7 +318,7 @@ export default function Hero() {
                       type="button"
                       onClick={() => setActiveBubble(null)}
                       className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                      aria-label="Close explanation"
+                      aria-label={t.closeExplanationAria}
                     >
                       <X className="w-4 h-4" />
                     </button>
